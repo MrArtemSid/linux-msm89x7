@@ -23,7 +23,7 @@
 		height = <1280>;
 		stride = <(720 * 3)>;
 		format = "r8g8b8";
-		status = "okay";
+//		status = "okay";
 	};
 };
 
