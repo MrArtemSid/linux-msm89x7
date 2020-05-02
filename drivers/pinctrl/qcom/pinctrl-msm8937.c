@@ -18,7 +18,7 @@
 
 #include "pinctrl-msm.h"
 
-static const struct pinctrl_pin_desc msm8917_pins[] = {
+static const struct pinctrl_pin_desc msm8937_pins[] = {
 	PINCTRL_PIN(0, "GPIO_0"),
 	PINCTRL_PIN(1, "GPIO_1"),
 	PINCTRL_PIN(2, "GPIO_2"),
@@ -393,7 +393,7 @@ static const unsigned int qdsd_data3_pins[] = { 146 };
 		.intr_detection_width = -1,		\
 	}
 
-enum msm8917_functions {
+enum msm8937_functions {
 	MSM_MUX_qdss_tracedata_b,
 	MSM_MUX_blsp_uart1,
 	MSM_MUX_gpio,
@@ -1071,7 +1071,7 @@ static const char * const qdss_cti_trig_out_a1_groups[] = {
 	"gpio133",
 };
 
-static const struct msm_function msm8917_functions[] = {
+static const struct msm_function msm8937_functions[] = {
 	FUNCTION(qdss_tracedata_b),
 	FUNCTION(blsp_uart1),
 	FUNCTION(gpio),
@@ -1236,7 +1236,7 @@ static const struct msm_function msm8917_functions[] = {
 	FUNCTION(qdss_cti_trig_out_a1),
 };
 
-static const struct msm_pingroup msm8917_groups[] = {
+static const struct msm_pingroup msm8937_groups[] = {
 	PINGROUP(0, blsp_spi1, blsp_uart1, qdss_tracedata_b, NA, NA, NA, NA,
 		 NA, NA),
 	PINGROUP(1, blsp_spi1, blsp_uart1, adsp_ext, NA, NA, NA, NA, NA,
@@ -1432,47 +1432,47 @@ static const struct msm_pingroup msm8917_groups[] = {
 
 #define NUM_GPIO_PINGROUPS	134
 
-static const struct msm_pinctrl_soc_data msm8917_pinctrl = {
-	.pins = msm8917_pins,
-	.npins = ARRAY_SIZE(msm8917_pins),
-	.functions = msm8917_functions,
-	.nfunctions = ARRAY_SIZE(msm8917_functions),
-	.groups = msm8917_groups,
-	.ngroups = ARRAY_SIZE(msm8917_groups),
+static const struct msm_pinctrl_soc_data msm8937_pinctrl = {
+	.pins = msm8937_pins,
+	.npins = ARRAY_SIZE(msm8937_pins),
+	.functions = msm8937_functions,
+	.nfunctions = ARRAY_SIZE(msm8937_functions),
+	.groups = msm8937_groups,
+	.ngroups = ARRAY_SIZE(msm8937_groups),
 	.ngpios = NUM_GPIO_PINGROUPS,
 };
 
-static int msm8917_pinctrl_probe(struct platform_device *pdev)
+static int msm8937_pinctrl_probe(struct platform_device *pdev)
 {
-	return msm_pinctrl_probe(pdev, &msm8917_pinctrl);
+	return msm_pinctrl_probe(pdev, &msm8937_pinctrl);
 }
 
-static const struct of_device_id msm8917_pinctrl_of_match[] = {
-	{ .compatible = "qcom,msm8917-pinctrl", },
+static const struct of_device_id msm8937_pinctrl_of_match[] = {
+	{ .compatible = "qcom,msm8937-pinctrl", },
 	{ },
 };
 
-static struct platform_driver msm8917_pinctrl_driver = {
+static struct platform_driver msm8937_pinctrl_driver = {
 	.driver = {
-		.name = "msm8917-pinctrl",
-		.of_match_table = msm8917_pinctrl_of_match,
+		.name = "msm8937-pinctrl",
+		.of_match_table = msm8937_pinctrl_of_match,
 	},
-	.probe = msm8917_pinctrl_probe,
+	.probe = msm8937_pinctrl_probe,
 	.remove = msm_pinctrl_remove,
 };
 
-static int __init msm8917_pinctrl_init(void)
+static int __init msm8937_pinctrl_init(void)
 {
-	return platform_driver_register(&msm8917_pinctrl_driver);
+	return platform_driver_register(&msm8937_pinctrl_driver);
 }
-arch_initcall(msm8917_pinctrl_init);
+arch_initcall(msm8937_pinctrl_init);
 
-static void __exit msm8917_pinctrl_exit(void)
+static void __exit msm8937_pinctrl_exit(void)
 {
-	platform_driver_unregister(&msm8917_pinctrl_driver);
+	platform_driver_unregister(&msm8937_pinctrl_driver);
 }
-module_exit(msm8917_pinctrl_exit);
+module_exit(msm8937_pinctrl_exit);
 
-MODULE_DESCRIPTION("Qualcomm msm8917 pinctrl driver");
+MODULE_DESCRIPTION("Qualcomm msm8937 pinctrl driver");
 MODULE_LICENSE("GPL v2");
-MODULE_DEVICE_TABLE(of, msm8917_pinctrl_of_match);
+MODULE_DEVICE_TABLE(of, msm8937_pinctrl_of_match);
