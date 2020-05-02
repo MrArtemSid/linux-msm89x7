@@ -717,8 +717,8 @@ const struct mdp5_cfg_hw msm8x76_config = {
 	.max_clk = 360000000,
 };
 
-static const struct mdp5_cfg_hw msm8917_config = {
-	.name = "msm8917",
+static const struct mdp5_cfg_hw msm8937_config = {
+	.name = "msm8937",
 	.mdp = {
 		.count = 1,
 		.caps = MDP_CAP_CDM,
@@ -1115,7 +1115,7 @@ static const struct mdp5_cfg_handler cfg_handlers_v1[] = {
 	{ .revision = 9, .config = { .hw = &msm8x94_config } },
 	{ .revision = 7, .config = { .hw = &msm8x96_config } },
 	{ .revision = 11, .config = { .hw = &msm8x76_config } },
-	{ .revision = 15, .config = { .hw = &msm8917_config } },
+	{ .revision = 15, .config = { .hw = &msm8937_config } },
 };
 
 static const struct mdp5_cfg_handler cfg_handlers_v3[] = {

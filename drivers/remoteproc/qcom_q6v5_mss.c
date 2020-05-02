@@ -109,7 +109,7 @@
 #define QDSP6v56_CLAMP_QMC_MEM		BIT(22)
 #define QDSP6SS_XO_CBCR		0x0038
 #define QDSP6SS_ACC_OVERRIDE_VAL		0x20
-#define QDSP6SS_ACC_OVERRIDE_VAL_MSM8917	0x80800000
+#define QDSP6SS_ACC_OVERRIDE_VAL_MSM8937	0x80800000
 
 /* QDSP6v65 parameters */
 #define QDSP6SS_CORE_CBCR		0x20
@@ -213,7 +213,7 @@ struct q6v5 {
 
 enum {
 	MSS_MSM8916,
-	MSS_MSM8917,
+	MSS_MSM8937,
 	MSS_MSM8974,
 	MSS_MSM8996,
 	MSS_MSM8998,
@@ -662,12 +662,12 @@ static int q6v5proc_reset(struct q6v5 *qproc)
 		goto pbl_wait;
 	} else if (qproc->version == MSS_MSM8996 ||
 		   qproc->version == MSS_MSM8998 || 
-		   qproc->version == MSS_MSM8917) {
+		   qproc->version == MSS_MSM8937) {
 		int mem_pwr_ctl;
 
 		/* Override the ACC value if required */
-		writel(qproc->version == MSS_MSM8917 ?
-			QDSP6SS_ACC_OVERRIDE_VAL_MSM8917 :
+		writel(qproc->version == MSS_MSM8937 ?
+			QDSP6SS_ACC_OVERRIDE_VAL_MSM8937 :
 			QDSP6SS_ACC_OVERRIDE_VAL,
 		       qproc->reg_base + QDSP6SS_STRAP_ACC);
 
@@ -2008,7 +2008,7 @@ static const struct rproc_hexagon_res msm8916_mss = {
 	.version = MSS_MSM8916,
 };
 
-static const struct rproc_hexagon_res msm8917_mss = {
+static const struct rproc_hexagon_res msm8937_mss = {
 	.hexagon_mba_image = "mba.mbn",
 	.proxy_supply = (struct qcom_mss_reg_res[]) {
 		{
@@ -2037,7 +2037,7 @@ static const struct rproc_hexagon_res msm8917_mss = {
 	},
 	.need_mem_protection = false,
 	.has_alt_reset = false,
-	.version = MSS_MSM8917,
+	.version = MSS_MSM8937,
 };
 
 static const struct rproc_hexagon_res msm8974_mss = {
@@ -2093,7 +2093,7 @@ static const struct rproc_hexagon_res msm8974_mss = {
 static const struct of_device_id q6v5_of_match[] = {
 	{ .compatible = "qcom,q6v5-pil", .data = &msm8916_mss},
 	{ .compatible = "qcom,msm8916-mss-pil", .data = &msm8916_mss},
-	{ .compatible = "qcom,msm8917-mss-pil", .data = &msm8917_mss},
+	{ .compatible = "qcom,msm8937-mss-pil", .data = &msm8937_mss},
 	{ .compatible = "qcom,msm8974-mss-pil", .data = &msm8974_mss},
 	{ .compatible = "qcom,msm8996-mss-pil", .data = &msm8996_mss},
 	{ .compatible = "qcom,msm8998-mss-pil", .data = &msm8998_mss},

@@ -11,8 +11,8 @@
 #include <linux/regmap.h>
 #include <linux/reset-controller.h>
 
-#include <dt-bindings/clock/qcom,gcc-msm8917.h>
-#include <dt-bindings/reset/qcom,gcc-msm8917.h>
+#include <dt-bindings/clock/qcom,gcc-msm8937.h>
+#include <dt-bindings/reset/qcom,gcc-msm8937.h>
 
 #include "common.h"
 #include "clk-regmap.h"
@@ -823,7 +823,7 @@ static struct gdsc oxili_gdsc = {
 	.pwrsts = PWRSTS_OFF_ON,
 };
 
-static struct clk_regmap *gcc_msm8917_clocks[] = {
+static struct clk_regmap *gcc_msm8937_clocks[] = {
 	[GPLL0_VOTE] = &gpll0_vote.clkr,
 	[SDCC1_APPS_CLK_SRC] = &sdcc1_apps_clk_src.clkr,
 	[SDCC2_APPS_CLK_SRC] = &sdcc2_apps_clk_src.clkr,
@@ -871,7 +871,7 @@ static struct clk_regmap *gcc_msm8917_clocks[] = {
 	[GCC_GFX_TCU_CLK] = &gcc_gfx_tcu_clk.clkr,
 };
 
-static struct gdsc *gcc_msm8917_gdscs[] = {
+static struct gdsc *gcc_msm8937_gdscs[] = {
 	[VENUS_GDSC] = &venus_gdsc,
 	[VENUS_CORE0_GDSC] = &venus_core0_gdsc,
 	[MDSS_GDSC] = &mdss_gdsc,
@@ -882,14 +882,14 @@ static struct gdsc *gcc_msm8917_gdscs[] = {
 	[OXILI_GDSC] = &oxili_gdsc,
 };
 
-static const struct qcom_reset_map gcc_msm8917_resets[] = {
+static const struct qcom_reset_map gcc_msm8937_resets[] = {
 	[GCC_USB_HS_BCR] = { 0x41000 },
 	[GCC_USB2_HS_PHY_ONLY_BCR] = { 0x41034 },
 	[GCC_QUSB2_PHY_BCR] = { 0x4103c },
 	[GCC_CAMSS_MICRO_BCR] = { 0x56008 },
 };
 
-static const struct regmap_config gcc_msm8917_regmap_config = {
+static const struct regmap_config gcc_msm8937_regmap_config = {
 	.reg_bits	= 32,
 	.reg_stride	= 4,
 	.val_bits	= 32,
@@ -897,23 +897,23 @@ static const struct regmap_config gcc_msm8917_regmap_config = {
 	.fast_io	= true,
 };
 
-static const struct qcom_cc_desc gcc_msm8917_desc = {
-	.config = &gcc_msm8917_regmap_config,
-	.clks = gcc_msm8917_clocks,
-	.num_clks = ARRAY_SIZE(gcc_msm8917_clocks),
-	.resets = gcc_msm8917_resets,
-	.num_resets = ARRAY_SIZE(gcc_msm8917_resets),
-	.gdscs = gcc_msm8917_gdscs,
-	.num_gdscs = ARRAY_SIZE(gcc_msm8917_gdscs),
+static const struct qcom_cc_desc gcc_msm8937_desc = {
+	.config = &gcc_msm8937_regmap_config,
+	.clks = gcc_msm8937_clocks,
+	.num_clks = ARRAY_SIZE(gcc_msm8937_clocks),
+	.resets = gcc_msm8937_resets,
+	.num_resets = ARRAY_SIZE(gcc_msm8937_resets),
+	.gdscs = gcc_msm8937_gdscs,
+	.num_gdscs = ARRAY_SIZE(gcc_msm8937_gdscs),
 };
 
-static const struct of_device_id gcc_msm8917_match_table[] = {
-	{ .compatible = "qcom,gcc-msm8917" },
+static const struct of_device_id gcc_msm8937_match_table[] = {
+	{ .compatible = "qcom,gcc-msm8937" },
 	{ }
 };
-MODULE_DEVICE_TABLE(of, gcc_msm8917_match_table);
+MODULE_DEVICE_TABLE(of, gcc_msm8937_match_table);
 
-static int gcc_msm8917_probe(struct platform_device *pdev)
+static int gcc_msm8937_probe(struct platform_device *pdev)
 {
 	int ret;
 	struct device *dev = &pdev->dev;
@@ -926,29 +926,29 @@ static int gcc_msm8917_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
-	return qcom_cc_probe(pdev, &gcc_msm8917_desc);
+	return qcom_cc_probe(pdev, &gcc_msm8937_desc);
 }
 
-static struct platform_driver gcc_msm8917_driver = {
-	.probe		= gcc_msm8917_probe,
+static struct platform_driver gcc_msm8937_driver = {
+	.probe		= gcc_msm8937_probe,
 	.driver		= {
-		.name	= "gcc-msm8917",
-		.of_match_table = gcc_msm8917_match_table,
+		.name	= "gcc-msm8937",
+		.of_match_table = gcc_msm8937_match_table,
 	},
 };
 
-static int __init gcc_msm8917_init(void)
+static int __init gcc_msm8937_init(void)
 {
-	return platform_driver_register(&gcc_msm8917_driver);
+	return platform_driver_register(&gcc_msm8937_driver);
 }
-core_initcall(gcc_msm8917_init);
+core_initcall(gcc_msm8937_init);
 
-static void __exit gcc_msm8917_exit(void)
+static void __exit gcc_msm8937_exit(void)
 {
-	platform_driver_unregister(&gcc_msm8917_driver);
+	platform_driver_unregister(&gcc_msm8937_driver);
 }
-module_exit(gcc_msm8917_exit);
+module_exit(gcc_msm8937_exit);
 
-MODULE_DESCRIPTION("Qualcomm GCC MSM8917 Driver");
+MODULE_DESCRIPTION("Qualcomm GCC MSM8937 Driver");
 MODULE_LICENSE("GPL v2");
-MODULE_ALIAS("platform:gcc-msm8917");
+MODULE_ALIAS("platform:gcc-msm8937");
