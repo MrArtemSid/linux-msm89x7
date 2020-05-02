@@ -10,7 +10,7 @@
 #define VADC_USBIN				0x00
 #define VADC_DCIN				0x01
 #define VADC_VCHG_SNS				0x02
-#define VADC_SPARE1_03				0x03
+#define VADC_VCHG_SNS2				0x03
 #define VADC_USB_ID_MV				0x04
 #define VADC_VCOIN				0x05
 #define VADC_VBAT_SNS				0x06
