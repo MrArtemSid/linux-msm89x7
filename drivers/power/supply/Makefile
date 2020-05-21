@@ -78,6 +78,7 @@ obj-$(CONFIG_CHARGER_MAX77693)	+= max77693_charger.o
 obj-$(CONFIG_CHARGER_MAX8997)	+= max8997_charger.o
 obj-$(CONFIG_CHARGER_MAX8998)	+= max8998_charger.o
 obj-$(CONFIG_CHARGER_MP2629)	+= mp2629_charger.o
+obj-$(CONFIG_BATTERY_QCOM_FG)	+= qcom_fg.o
 obj-$(CONFIG_CHARGER_QCOM_SMBB)	+= qcom_smbb.o
 smb1360-y			:= smb1360-driver.o
 smb1360-$(CONFIG_SMB1360_DEBUG)	+= smb1360-dump.o
