@@ -640,6 +640,8 @@
 			reg-names = "core", "chnls", "obsrvr", "intr", "cnfg";
 			interrupt-names = "periph_irq";
 			interrupts = <GIC_SPI 190 IRQ_TYPE_LEVEL_HIGH>;
+			qcom,max-peripherals = <256>;
+			qcom,max-periph-interrupts = <256>;
 			qcom,ee = <0>;
 			qcom,channel = <0>;
 			#address-cells = <2>;
@@ -648,9 +650,8 @@
 			#interrupt-cells = <4>;
 		};
 
+#if 1
 		// iommu_base 0x1e00000 0x40000
-
-#if 0
 		apps_iommu: iommu@1e00000 {
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -662,16 +663,21 @@
 			clock-names = "iface", "bus";
 			qcom,iommu-secure-id = <17>;
 
-			// mdp_0:
-			iommu-ctx@15000 {
+			/*mdp_0: iommu-ctx@15000 {
 				compatible = "qcom,msm-iommu-v1-sec";
-				reg = <0x15000 0x1000>;
+				reg = <0x17000 0x1000>;
 				interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>;
+			};*/
+
+			mdp_1: iommu-ctx@1e26000 {
+				compatible = "qcom,msm-iommu-v1-sec";
+				reg = <0x6000 0x1000>;
+				interrupts = <GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>;
 			};
 		};
 #endif
 
-#if 0
+#if 1
 		gpu_iommu: iommu@1f00000 {
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -962,7 +968,7 @@
 
 #if 1
 		gpu@1c00000 {
-			compatible = "qcom,adreno-306.0", "qcom,adreno";
+			compatible = "qcom,adreno-530.2", "qcom,adreno";
 			reg = <0x01c00000 0x20000>;
 			reg-names = "kgsl_3d0_reg_memory";
 			interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
@@ -994,17 +1000,16 @@
 		mdss: mdss@1a00000 {
 			compatible = "qcom,mdss";
 			reg = <0x1a00000 0x1000>,
-			      <0x1ac8000 0x3000>;
+			      <0x1ab0000 0x1040>;
 			reg-names = "mdss_phys", "vbif_phys";
+			status = "disabled";
 
 			power-domains = <&gcc MDSS_GDSC>;
 
 			clocks = <&gcc GCC_MDSS_AHB_CLK>,
-				 <&gcc GCC_MDSS_AXI_CLK>,
-				 <&gcc GCC_MDSS_VSYNC_CLK>;
-			clock-names = "iface",
-				      "bus",
-				      "vsync";
+				<&gcc GCC_MDSS_AXI_CLK>,
+				<&gcc GCC_MDSS_VSYNC_CLK>;
+			clock-names = "iface", "bus", "vsync";
 
 			interrupts = <0 72 IRQ_TYPE_LEVEL_HIGH>;
 
@@ -1026,13 +1031,14 @@
 				clocks = <&gcc GCC_MDSS_AHB_CLK>,
 					 <&gcc GCC_MDSS_AXI_CLK>,
 					 <&gcc GCC_MDSS_MDP_CLK>,
-					 <&gcc GCC_MDSS_VSYNC_CLK>;
+					 <&gcc GCC_MDSS_VSYNC_CLK>,
+					 <&gcc GCC_MDSS_ESC0_CLK>;
 				clock-names = "iface",
 					      "bus",
 					      "core",
 					      "vsync";
 
-				// iommus = <&apps_iommu 0x15>;
+				iommus = <&apps_iommu 4>;
 
 				ports {
 					#address-cells = <1>;
@@ -1075,13 +1081,6 @@
 				phys = <&dsi_phy0>;
 				phy-names = "dsi-phy";
 
-				vdda-supply = <&pm8937_l2>;
-				vdd-supply = <&pm8937_l17>;
-				vddio-supply = <&pm8937_l6>;
-
-				#address-cells = <1>;
-				#size-cells = <0>;
-
 				ports {
 					#address-cells = <1>;
 					#size-cells = <0>;
@@ -1096,41 +1095,13 @@
 					port@1 {
 						reg = <1>;
 						dsi0_out: endpoint {
-							remote-endpoint = <&panel_in>;
-							data-lanes = <0 1 2 3>;
-						};
-					};
-				};
-
-				panel: panel@0 {
-					reg = <0>;
-					compatible = "ilitek,ili9881c-txd";
-					power-supply = <&dummy_reg0>;
-
-					enable-gpios = <&msmgpio 99 1>;
-
-					//backlight =
-					// backlight en gpio 98
-					// enable gpio 99
-					// reset gpio 60
-
-					//reset-gpios = <&msmgpio 60 0>;
-
-					//disp-te-gpios = <&msmgpio 24 0>;
-
-					pinctrl-names = "default";
-					pinctrl-0 = <&mdss_te_active>;
-
-					port {
-						panel_in: endpoint {
-							remote-endpoint = <&dsi0_out>;
 						};
 					};
 				};
 			};
 
 			dsi_phy0: dsi-phy@1a94a00 {
-				compatible = "qcom,dsi-phy-28nm-lp";
+				compatible = "qcom,dsi-phy-28nm-hpm-fam-b";
 				reg = <0x1a94a00 0xd4>,
 				      <0x1a94400 0x280>,
 				      <0x1a94b80 0x30>;
@@ -1160,46 +1131,13 @@
 			qcom,ipc = <&apcs 8 0>;
 			qcom,smd-edge = <15>;
 
-			rpm_requests {
+			rpm_requests: rpm_requests {
 				compatible = "qcom,rpm-msm8937";
 				qcom,smd-channels = "rpm_requests";
 
 				rpmcc: qcom,rpmcc {
-					compatible = "qcom,rpmcc-msm8937";
+					compatible = "qcom,rpmcc-msm8937", "qcom,rpmcc";
 					#clock-cells = <1>;
-				};
-
-				smd_rpm_regulators: pm8937-regulators {
-					compatible = "qcom,rpm-pm8937-regulators";
-					pm8937_s1: s1 {};
-					pm8937_s2: s2 {};
-					pm8937_s3: s3 {};
-					pm8937_s4: s4 {};
-					pm8937_s5: s5 {};
-					pm8937_s6: s6 {};
-					pm8937_l1: l1 {};
-					pm8937_l2: l2 {};
-					pm8937_l3: l3 {};
-					pm8937_l4: l4 {};
-					pm8937_l5: l5 {};
-					pm8937_l6: l6 {};
-					pm8937_l7: l7 {};
-					pm8937_l8: l8 {};
-					pm8937_l9: l9 {};
-					pm8937_l10: l10 {};
-					pm8937_l11: l11 {};
-					pm8937_l12: l12 {};
-					pm8937_l13: l13 {};
-					pm8937_l14: l14 {};
-					pm8937_l15: l15 {};
-					pm8937_l16: l16 {};
-					pm8937_l17: l17 {};
-					pm8937_l18: l18 {};
-					pm8937_l19: l19 {};
-					pm8937_l20: l20 {};
-					pm8937_l21: l21 {};
-					pm8937_l22: l22 {};
-					pm8937_l23: l23 {};
 				};
 			};
 		};
@@ -1320,24 +1258,12 @@
 		};
 	};
 
-
-	// to be removed
-	dummy_reg0: dummy_reg0 {
-		compatible = "regulator-fixed";
-		regulator-min-microvolt = <3000000>;
-		regulator-max-microvolt = <3000000>;
-		regulator-name = "dummy_reg0";
-		regulator-type = "voltage";
-		regulator-always-on;
-		regulator-boot-on;
-	};
-
 	usb_id: usb-id {
 		compatible = "linux,extcon-usb-gpio";
 		vbus-gpio = <&msmgpio 91 GPIO_ACTIVE_HIGH>;
 	};
 
-	battery_data: qcom,battery-data {
+	/*battery_data: qcom,battery-data {
 		qcom,batt-id-range-pct = <0xf>;
 
 		qcom,max-voltage-uv = <0x432380>;
@@ -1352,7 +1278,7 @@
 		qcom,checksum = <0x3bc0>;
 		qcom,gui-version = "PMI8950GUI - 2.0.0.16";
 		qcom,fg-profile-data = <0x88027e 0x282827c 0x6383166f 0x7c88e18e 0x2c827899 0x38bc66c8 0x5c100988 0x487e2f82 0xab7c5c83 0xa95ae180 0xb98c4282 0x109a77bd 0xb7ca5b0e 0x60bec5b 0x1470d9fd 0x22371f45 0x97380000 0x274cf101 0xcf400000 0x0 0x0 0x5f702e6a 0xb48c7c83 0xd37ccc71 0x5f7c0573 0x9f760a6b 0xf27602a1 0x1e376052 0x5da0710c 0x2800ff36 0xf0113003 0xc>;
-	};
+	};*/
 };
 
 #include <dt-bindings/spmi/spmi.h>

@@ -3,11 +3,11 @@
 /dts-v1/;
 
 #include "msm8937.dtsi"
-#include "pmi8950.dtsi"
+#include "msm8937-pmi8950.dtsi"
 
 / {
-	model = "Qualcomm Technologies, Inc. MSM8940-PMI8950 QRD SKU7";
-	compatible = "qcom,msm8940-qrd-sku7", "qcom,msm8937-qrd", "qcom,msm8937", "qcom,qrd";
+	model = "Xiaomi Redmi 4X";
+	compatible = "qcom,msm8940-qrd-sku7", "qcom,msm8937-qrd", "qcom,msm8937";
 
 	qcom,msm-id = <313 0x0>;
 	qcom,board-id= <0x1000b 1>, <0x2000b 1>;
@@ -18,17 +18,32 @@
 	framebuffer0: framebuffer@90001000 {
 		compatible = "simple-framebuffer";
 		reg = <0 (0x90001000) 0 (720*1280*3)>;
-		//reg = <0x90000000 (720*400*4)>;
 		width = <720>;
 		height = <1280>;
 		stride = <(720 * 3)>;
 		format = "r8g8b8";
-//		status = "okay";
+	};
+
+	/*pwm_bl: backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pm8916_pwm 0 100000>;
+
+		brightness-levels = <0 255>;
+		num-interpolated-steps = <255>;
+		default-brightness-level = <255>;
+	};*/
+
+	panel@0 {
+		compatible = "mdss,ili9881c-ebbg";
+		reg = <0 0>;
+		power-supply = <&pm8937_l17>;
+		reset-gpios = <&msmgpio 25 GPIO_ACTIVE_HIGH>;
+		//backlight = <&pwm_bl>;
 	};
 };
 
 &smd_rpm_regulators {
-	vdd_s1-supply = <&dummy_reg0>;
+	/*vdd_s1-supply = <&dummy_reg0>;
 	vdd_s2-supply = <&dummy_reg0>;
 	vdd_s3-supply = <&dummy_reg0>;
 	vdd_s4-supply = <&dummy_reg0>;
@@ -40,12 +55,13 @@
 	vdd_l4_l5_l6_l7_l16-supply = <&pm8937_s4>;
 	vdd_l20_l21-supply = <&pm8937_s4>;
 	vdd_l8_l11_l12_l17_l22-supply = <&dummy_reg0>;
-	vdd_l9_l10_l13_l14_l15_l18-supply = <&dummy_reg0>;
+	vdd_l9_l10_l13_l14_l15_l18-supply = <&dummy_reg0>;*/
+	compatible = "qcom,rpm-pmi8950-regulators";
 
 	/* MSM modem */
 	s1 {
-		//regulator-min-microvolt = <1000000>;
-		regulator-min-microvolt = <1225000>;
+		regulator-min-microvolt = <1000000>;
+		//regulator-min-microvolt = <1225000>;
 		regulator-max-microvolt = <1225000>;
 		regulator-always-on; // XXX
 	};
