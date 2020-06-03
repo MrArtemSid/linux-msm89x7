@@ -22,6 +22,8 @@
 		height = <1280>;
 		stride = <(720 * 3)>;
 		format = "r8g8b8";
+		#power-domain-cells = <1>;
+		power-domains = <&gcc MDSS_GDSC>;
 	};
 
 	/*pwm_bl: backlight {
@@ -317,6 +319,48 @@
 				retain-state-suspended;
 			};
 		};*/
+	};
+};
+
+&msmgpio {
+	gpio_keys_default: gpio_keys_default {
+		pinmux {
+			function = "gpio";
+			pins = "gpio91";
+		};
+		pinconf {
+			pins = "gpio91";
+			drive-strength = <2>;
+			bias-pull-up;
+		};
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpio_keys_default>;
+
+		label = "GPIO Buttons";
+
+		volume-up {
+			label = "Volume Up";
+			gpios = <&msmgpio 91 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_UP>;
+		};
+	};
+};
+
+&spmi_bus {
+	pmi8950@0 {
+		pon@800 {
+			volume-down {
+				compatible = "qcom,pm8941-resin";
+				interrupts = <0x0 0x8 1 IRQ_TYPE_EDGE_BOTH>;
+				bias-pull-up;
+				linux,code = <KEY_VOLUMEDOWN>;
+			};
+		};
 	};
 };
 
