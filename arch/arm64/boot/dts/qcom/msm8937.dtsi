@@ -393,9 +393,9 @@
 			reg = <0x4ab000 0x4>;
 		};
 
-		qfprom: qfprom@5c000 {
+		qfprom: qfprom@a0000 {
 			compatible = "qcom,qfprom";
-			reg = <0x5c000 0x1000>;
+			reg = <0xa0000 0x1000>;
 			#address-cells = <1>;
 			#size-cells = <1>;
 			tsens_caldata: caldata@d0 {
@@ -411,6 +411,8 @@
 			reg = <0x1000000 0x300000>;
 			interrupts = <GIC_SPI 208 IRQ_TYPE_LEVEL_HIGH>;
 			gpio-controller;
+			gpio-ranges = <&msmgpio 0 0 133>;
+			gpio-reserved-ranges = <0 4>, <20 4>;
 			#gpio-cells = <2>;
 			interrupt-controller;
 			#interrupt-cells = <2>;
@@ -460,9 +462,9 @@
 		};
 
 #if 0
-		uqfprom: eeprom@58000 {
+		uqfprom: eeprom@a0000 {
 			compatible = "qcom,qfprom-msm8916";
-			reg = <0x58000 0x7000>;
+			reg = <0xa0000 0x7000>;
 		};
 
 		cpr@b018000 {
@@ -526,7 +528,7 @@
 			status = "disabled";
 		};
 
-		blsp_i2c5: i2c@7af5000 {
+		/*blsp_i2c5: i2c@7af5000 {
 			compatible = "qcom,i2c-qup-v2.2.1";
 			reg = <0x07af5000 0x500>;
 			interrupts = <GIC_SPI 299 IRQ_TYPE_LEVEL_HIGH>;
@@ -541,7 +543,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
-		};
+		};*/
 
 		sdhc_1: sdhci@7824000 {
 			compatible = "qcom,sdhci-msm-v4";
@@ -612,7 +614,7 @@
 					clock-names = "ref", "sleep";
 					resets = <&gcc GCC_USB2_HS_PHY_ONLY_BCR>;
 					reset-names = "por";
-					qcom,init-seq = /bits/ 8 <0x53 0x80 0x32 0x81 0x07 0x82 0x13 0x83>;
+					qcom,init-seq = /bits/ 8 <0x80 0x53 0x81 0x32 0x82 0x07 0x83 0x13>;
 
 					v1p8-supply = <&pm8937_l7>;
 					v3p3-supply = <&pm8937_l13>;
@@ -633,8 +635,8 @@
 		spmi_bus: spmi@200f000 {
 			compatible = "qcom,spmi-pmic-arb";
 			reg = <0x200f000 0x001000>,
-			      <0x2400000 0x400000>,
-			      <0x2c00000 0x400000>,
+			      <0x2400000 0x800000>,
+			      <0x2c00000 0x800000>,
 			      <0x3800000 0x200000>,
 			      <0x200a000 0x002100>;
 			reg-names = "core", "chnls", "obsrvr", "intr", "cnfg";
@@ -650,7 +652,7 @@
 			#interrupt-cells = <4>;
 		};
 
-#if 1
+#if 0
 		// iommu_base 0x1e00000 0x40000
 		apps_iommu: iommu@1e00000 {
 			#address-cells = <1>;
@@ -677,7 +679,7 @@
 		};
 #endif
 
-#if 1
+#if 0
 		gpu_iommu: iommu@1f00000 {
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -966,7 +968,7 @@
 		};
 #endif
 
-#if 1
+#if 0
 		gpu@1c00000 {
 			compatible = "qcom,adreno-530.2", "qcom,adreno";
 			reg = <0x01c00000 0x20000>;
@@ -1283,7 +1285,7 @@
 
 #include <dt-bindings/spmi/spmi.h>
 #include <dt-bindings/iio/qcom,spmi-vadc.h>
-
+/*
 &sound {
 		compatible = "qcom,apq8016-sbc-sndcard";
 		reg = <0xc051000 0x4>, <0xc051004 0x4>, <0xc055000 0x4>, <0xc052000 0x4>;
@@ -1324,6 +1326,6 @@
 			sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA2>;
 		};
 	};
-};
+};*/
 
 #include "msm8937-pins.dtsi"

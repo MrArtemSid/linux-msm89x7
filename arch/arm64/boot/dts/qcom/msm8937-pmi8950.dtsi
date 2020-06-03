@@ -30,3 +30,7 @@
         pm8937_l23: l23 {};
     };
 };
+
+&usb_hs_phy {
+	qcom,init-seq = /bits/ 8 <0x81 0x39 0x82 0x37>;
+};

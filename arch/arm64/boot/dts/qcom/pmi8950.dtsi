@@ -72,51 +72,26 @@
 			};
 		};
 
-		gpios {
-			spmi-dev-container;
+		pmi8950_gpios: gpios@c000 {
 			compatible = "qcom,pmi8950-gpio";
+			reg = <0xc000>;
 			gpio-controller;
 			#gpio-cells = <2>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			gpios@c000 {
-				reg = <0xc000>;
-				status = "okay";
-			};
-
-			gpios@c100 {
-				reg = <0xc100>;
-				status = "okay";
-			};
+			interrupts = <0 0xc0 0 IRQ_TYPE_NONE>,
+				     <0 0xc1 0 IRQ_TYPE_NONE>,
+				     <0 0xc2 0 IRQ_TYPE_NONE>,
+				     <0 0xc3 0 IRQ_TYPE_NONE>;
 		};
 
-		pmi8950_mpps: mpps {
-			compatible = "qcom,pm8950-mpp";
+		pmi8950_mpps: mpps@a000 {
+			compatible = "qcom,pmi8950-mpp";
+			reg = <0xa000>;
 			gpio-controller;
 			#gpio-cells = <2>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			mpp@a00 {
-				reg = <0xa000>;
-				status = "okay";
-			};
-
-			mpp@a100 {
-				reg = <0xa100>;
-				status = "okay";
-			};
-
-			mpp@a200 {
-				reg = <0xa200>;
-				status = "okay";
-			};
-
-			mpp@a300 {
-				reg = <0xa300>;
-				status = "okay";
-			};
+			interrupts = <0 0xa0 0 IRQ_TYPE_NONE>,
+				     <0 0xa1 0 IRQ_TYPE_NONE>,
+				     <0 0xa2 0 IRQ_TYPE_NONE>,
+				     <0 0xa3 0 IRQ_TYPE_NONE>;
 		};
 
 		qcom_smbcharger {

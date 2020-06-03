@@ -25,7 +25,7 @@
 		};
 	};
 
-	i2c5_default: i2c5_default {
+	/*i2c5_default: i2c5_default {
 		pinmux {
 			function = "blsp_i2c5";
 			pins = "gpio18", "gpio19";
@@ -47,7 +47,7 @@
 			drive-strength = <2>;
 			bias-disable;
 		};
-	};
+	};*/
 
 	// XXX sdc1_rclk?
 
@@ -272,7 +272,7 @@
 		};
 	};
 
-	mdss_te_active: mdss_te_active {
+	/*mdss_te_active: mdss_te_active {
 		pinmux {
 			pins = "gpio24";
 			function = "mdp_vsync";
@@ -283,9 +283,9 @@
 			drive-strength = <2>;
 			bias-pull-down;
 		};
-	};
+	};*/
 
-	ext-spk-pa {
+	/*ext-spk-pa {
 		ext_spk_pa_act: lines_on {
 			mux {
 				pins = "gpio124";
@@ -312,7 +312,7 @@
 				bias-pull-down;
 			};
 		};
-	};
+	};*/
 
 	cdc-pdm-2-lines {
 		cdc_pdm_lines_2_act: pdm_lines_2_on {
@@ -367,7 +367,7 @@
 		};
 	};
 
-	pri-tlmm-lines {
+	/*pri-tlmm-lines {
 		pri_tlmm_lines_act: pri_tlmm_lines_act {
 			mux {
 				pins = "gpio85", "gpio88";
@@ -422,5 +422,5 @@
 				input-enable;
 			};
 		};
-	};
+	};*/
 };

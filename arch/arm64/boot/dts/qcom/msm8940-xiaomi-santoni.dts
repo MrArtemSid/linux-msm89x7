@@ -33,13 +33,16 @@
 		default-brightness-level = <255>;
 	};*/
 
-	panel@0 {
+	/*panel@0 {
 		compatible = "mdss,ili9881c-ebbg";
 		reg = <0 0>;
 		power-supply = <&pm8937_l17>;
-		reset-gpios = <&msmgpio 25 GPIO_ACTIVE_HIGH>;
+		// LCD_TE0 = 24
+		// LCD_RST_N = 60
+		// LCD_ID = 61
+		reset-gpios = <&msmgpio 60 GPIO_ACTIVE_HIGH>;
 		//backlight = <&pwm_bl>;
-	};
+	};*/
 };
 
 &smd_rpm_regulators {
@@ -68,8 +71,8 @@
 
 	/* MSM core and graphics */
 	s2 {
-		regulator-min-microvolt = <1100000>;
-		regulator-max-microvolt = <1100000>;
+		regulator-min-microvolt = <1230000>;
+		regulator-max-microvolt = <1230000>;
 		regulator-always-on; // XXX
 	};
 
