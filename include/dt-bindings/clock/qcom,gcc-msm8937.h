@@ -48,6 +48,12 @@
 #define GCC_SMMU_CFG_CLK 42
 #define GCC_APSS_TCU_CLK 43
 #define GCC_GFX_TCU_CLK 44
+#define BYTE1_CLK_SRC 45
+#define PCLK1_CLK_SRC 46
+#define ESC1_CLK_SRC 47
+#define GCC_MDSS_BYTE1_CLK 48
+#define GCC_MDSS_ESC1_CLK 49
+#define GCC_MDSS_PCLK1_CLK 50
 
 /* Indexes for GDSCs */
 #define VENUS_GDSC 0
