@@ -303,6 +303,10 @@ struct arm_smmu_device {
 
 	spinlock_t			global_sync_lock;
 
+	unsigned int			sec_id;
+
+	bool				locked_up;
+
 	/* IOMMU core code handle */
 	struct iommu_device		iommu;
 };

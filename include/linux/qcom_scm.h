@@ -56,6 +56,7 @@ enum qcom_scm_sec_dev_id {
 
 #if IS_ENABLED(CONFIG_QCOM_SCM)
 extern bool qcom_scm_is_available(void);
+extern void qcom_scm_tz_set_cb_format(u32 sec_id, u32 cbndx);
 
 extern int qcom_scm_set_cold_boot_addr(void *entry, const cpumask_t *cpus);
 extern int qcom_scm_set_warm_boot_addr(void *entry, const cpumask_t *cpus);
@@ -97,6 +98,7 @@ extern int qcom_scm_qsmmu500_wait_safe_toggle(bool en);
 
 #include <linux/errno.h>
 
+static inline void qcom_scm_tz_set_cb_format(u32, u32);
 static inline bool qcom_scm_is_available(void) { return false; }
 
 static inline int qcom_scm_set_cold_boot_addr(void *entry,

@@ -1033,6 +1033,35 @@ static int qcom_scm_find_dload_address(struct device *dev, u64 *addr)
 	return 0;
 }
 
+void qcom_scm_tz_set_cb_format(u32 sec_id, u32 cbndx)
+{
+	struct qcom_scm_desc desc = {
+		.svc = QCOM_SCM_SVC_SMMU_PROGRAM,
+		.cmd = 1,
+		.arginfo = QCOM_SCM_ARGS(3, QCOM_SCM_VAL, QCOM_SCM_VAL,
+					 QCOM_SCM_VAL),
+		.args[0] = sec_id,
+		.args[1] = cbndx,
+		.args[2] = 1,
+		.owner = ARM_SMCCC_OWNER_SIP,
+	};
+	struct qcom_scm_res res;
+	int ret;
+
+	ret = qcom_scm_call(__scm->dev, &desc, &res);
+
+	/* At this stage, we cannot afford to fail because we have
+	 * committed to support V8L format to client and we can't
+	 * fallback.
+	 */
+	if (ret) {
+		pr_err("Format change failed for CB %d with ret %d\n",
+			cbndx, ret);
+		BUG();
+	}
+}
+EXPORT_SYMBOL(qcom_scm_tz_set_cb_format);
+
 /**
  * qcom_scm_is_available() - Checks if SCM is available
  */
