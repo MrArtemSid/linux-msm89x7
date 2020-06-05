@@ -1160,7 +1160,7 @@ static int spmi_pmic_arb_probe(struct platform_device *pdev)
 	struct resource *res;
 	void __iomem *core;
 	u32 *mapping_table;
-	u32 channel, ee, hw_ver;
+	u32 channel, ee, hw_ver, max_periphs;
 	int err;
 
 	ctrl = spmi_controller_alloc(&pdev->dev, sizeof(*pmic_arb));
@@ -1271,7 +1271,20 @@ static int spmi_pmic_arb_probe(struct platform_device *pdev)
 	}
 
 	pmic_arb->ee = ee;
-	mapping_table = devm_kcalloc(&ctrl->dev, PMIC_ARB_MAX_PERIPHS,
+
+	err = of_property_read_u32(pdev->dev.of_node, "qcom,max-peripherals", &max_periphs);
+	if (err) {
+		dev_dbg(&pdev->dev, "\"qcom,max-peripherals\" property is missing, assuming %u.\n", PMIC_ARB_MAX_PERIPHS);
+		max_periphs = PMIC_ARB_MAX_PERIPHS;
+	}
+
+	if (max_periphs > PMIC_ARB_MAX_PERIPHS) {
+		dev_err(&pdev->dev, "invalid max peripherals count (%u) specified\n", max_periphs);
+		err = -EINVAL;
+		goto err_put_ctrl;
+	}
+
+	mapping_table = devm_kcalloc(&ctrl->dev, max_periphs,
 					sizeof(*mapping_table), GFP_KERNEL);
 	if (!mapping_table) {
 		err = -ENOMEM;
@@ -1282,7 +1295,7 @@ static int spmi_pmic_arb_probe(struct platform_device *pdev)
 	/* Initialize max_apid/min_apid to the opposite bounds, during
 	 * the irq domain translation, we are sure to update these */
 	pmic_arb->max_apid = 0;
-	pmic_arb->min_apid = PMIC_ARB_MAX_PERIPHS - 1;
+	pmic_arb->min_apid = max_periphs - 1;
 
 	platform_set_drvdata(pdev, ctrl);
 	raw_spin_lock_init(&pmic_arb->lock);
