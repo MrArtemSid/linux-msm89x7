@@ -7,13 +7,14 @@
 #include <dt-bindings/spmi/spmi.h>
 
 &spmi_bus {
-	pmic@2 {
+
+	pmi8950_2: pmic@2 {
 		compatible = "qcom,pmi8950", "qcom,spmi-pmic";
 		reg = <2 SPMI_USID>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		qcom,power-on@800 {
+		pon@800 {
 			compatible = "qcom,pm8916-pon"; //FIXME is this the correct driver
 			reg = <0x800>;			//This pmic may be gen2 unlike 8916
 			//qcom,secondary-pon-reset;
@@ -21,6 +22,15 @@
 			pon_pereph-reg {
 				//TODO:
 				regulator-name = "pon_spare_reg";
+			};
+
+			pwrkey {
+				compatible = "qcom,pm8941-pwrkey";
+				interrupts = <0x0 0x8 0 IRQ_TYPE_EDGE_BOTH>;
+				debounce = <15625>;
+				bias-pull-up;
+				//linux,code = <KEY_POWER>;
+				linux,code = <KEY_ENTER>;
 			};
 		};
 
@@ -174,7 +184,7 @@
 		};
 	};
 
-	pmi8950@3 {
+	pmi8950_3: pmi8950@3 {
 		compatible = "qcom,pmi8950", "qcom,spmi-pmic";
 		reg = <3 SPMI_USID>;
 		#address-cells = <1>;

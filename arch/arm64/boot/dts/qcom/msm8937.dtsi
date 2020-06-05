@@ -571,8 +571,8 @@
 			interrupts = <0 125 IRQ_TYPE_LEVEL_HIGH>, <0 221 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "hc_irq", "pwr_irq";
 			clocks = <&gcc GCC_SDCC2_APPS_CLK>,
-				 <&gcc GCC_SDCC2_AHB_CLK>,
-				 <&xo_board>;
+				<&gcc GCC_SDCC2_AHB_CLK>,
+				<&xo_board>;
 			clock-names = "core", "iface", "xo";
 			bus-width = <4>;
 			status = "disabled";
@@ -597,7 +597,7 @@
 			ahb-burst-config = <0>;
 			phy-names = "usb-phy";
 			phys = <&usb_hs_phy>;
-			status = "ok";
+			status = "okay";
 			#reset-cells = <1>;
 
 			adp-disable;
@@ -608,15 +608,13 @@
 
 			ulpi {
 				usb_hs_phy: phy {
-					compatible = "qcom,usb-hs-phy-msm8916",
-						     "qcom,usb-hs-phy";
+					compatible = "qcom,usb-hs-phy-msm8937", "qcom,usb-hs-phy";
 					#phy-cells = <0>;
 					clocks = <&gcc GCC_USB_HS_PHY_CFG_AHB_CLK>, <&gcc GCC_USB2A_PHY_SLEEP_CLK>;
 					clock-names = "ref", "sleep";
 					resets = <&gcc GCC_USB2_HS_PHY_ONLY_BCR>;
 					reset-names = "por";
 					qcom,init-seq = /bits/ 8 <0x80 0x53 0x81 0x32 0x82 0x07 0x83 0x13>;
-
 					v1p8-supply = <&pm8937_l7>;
 					v3p3-supply = <&pm8937_l13>;
 					extcon = <&usb_id>;
@@ -644,7 +642,6 @@
 			interrupt-names = "periph_irq";
 			interrupts = <GIC_SPI 190 IRQ_TYPE_LEVEL_HIGH>;
 			qcom,max-peripherals = <256>;
-			qcom,max-periph-interrupts = <256>;
 			qcom,ee = <0>;
 			qcom,channel = <0>;
 			#address-cells = <2>;
@@ -698,7 +695,7 @@
 				     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>;
 		};
-
+#if 0
 		adreno_iommu: smmu@1c40000 {
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -713,14 +710,13 @@
 				     <GIC_SPI 234 IRQ_TYPE_LEVEL_HIGH>;
 			#iommu-cells = <1>;
 
-			clocks = <&gcc GCC_OXILI_AHB_CLK>,
-				 <&gcc GCC_BIMC_GFX_CLK>;
+			clocks = <&gcc GCC_OXILI_AHB_CLK>, <&gcc GCC_BIMC_GFX_CLK>;
 			clock-names = "iface", "bus";
 
 			power-domains = <&gcc OXILI_GDSC>;
 			qcom,iommu-secure-id = <18>;
 		};
-
+#endif
 		q6: hexagon@4080000 {
 			compatible = "qcom,msm8937-mss-pil";
 			reg = <0x04080000 0x100>,
@@ -1371,7 +1367,12 @@
 		qcom,chg-rslow-comp-thr = <0xb8>;
 		qcom,checksum = <0x3bc0>;
 		qcom,gui-version = "PMI8950GUI - 2.0.0.16";
-		qcom,fg-profile-data = <0x88027e 0x282827c 0x6383166f 0x7c88e18e 0x2c827899 0x38bc66c8 0x5c100988 0x487e2f82 0xab7c5c83 0xa95ae180 0xb98c4282 0x109a77bd 0xb7ca5b0e 0x60bec5b 0x1470d9fd 0x22371f45 0x97380000 0x274cf101 0xcf400000 0x0 0x0 0x5f702e6a 0xb48c7c83 0xd37ccc71 0x5f7c0573 0x9f760a6b 0xf27602a1 0x1e376052 0x5da0710c 0x2800ff36 0xf0113003 0xc>;
+		qcom,fg-profile-data = <0x88027e 0x282827c 0x6383166f 0x7c88e18e 
+			0x2c827899 0x38bc66c8 0x5c100988 0x487e2f82 0xab7c5c83 0xa95ae180 
+			0xb98c4282 0x109a77bd 0xb7ca5b0e 0x60bec5b 0x1470d9fd 0x22371f45 
+			0x97380000 0x274cf101 0xcf400000 0x0 0x0 0x5f702e6a 0xb48c7c83 
+			0xd37ccc71 0x5f7c0573 0x9f760a6b 0xf27602a1 0x1e376052 0x5da0710c
+			0x2800ff36 0xf0113003 0xc>;
 	};*/
 };
 
@@ -1380,11 +1381,17 @@
 /*
 &sound {
 		compatible = "qcom,apq8016-sbc-sndcard";
-		reg = <0xc051000 0x4>, <0xc051004 0x4>, <0xc055000 0x4>, <0xc052000 0x4>;
-		reg-names = "mic-iomux", "spkr-iomux", "lpaif_pri_pcm_pro_mode", "quin-iomux";
+		reg = <0xc051000 0x4>, 
+			<0xc051004 0x4>, 
+			<0xc055000 0x4>, 
+			<0xc052000 0x4>;
+		reg-names = "mic-iomux", "spkr-iomux", "lpaif_pri_pcm_pro_mode", 
+			"quin-iomux";
 		status = "okay";
-//		pinctrl-0 = <&cdc_pdm_lines_act &ext_sec_tlmm_lines_act &ext_mclk_tlmm_lines_act>;
-//		pinctrl-1 = <&cdc_pdm_lines_sus &ext_sec_tlmm_lines_sus &ext_mclk_tlmm_lines_sus>;
+//		pinctrl-0 = <&cdc_pdm_lines_act &ext_sec_tlmm_lines_act 
+//			&ext_mclk_tlmm_lines_act>;
+//		pinctrl-1 = <&cdc_pdm_lines_sus &ext_sec_tlmm_lines_sus 
+//			&ext_mclk_tlmm_lines_sus>;
 //		pinctrl-names = "default", "sleep";
 		qcom,model = "DB410cQ6DSP";
 		//qcom,audio-routing =
