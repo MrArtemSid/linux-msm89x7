@@ -26,6 +26,7 @@ properties:
       - description: Qcom SoCs implementing "arm,smmu-v2"
         items:
           - enum:
+              - qcom,msm8937-smmu-v2
               - qcom,msm8996-smmu-v2
               - qcom,msm8998-smmu-v2
               - qcom,sc7180-smmu-v2
