@@ -17,7 +17,7 @@
 / {
 	framebuffer0: framebuffer@90001000 {
 		compatible = "simple-framebuffer";
-		display = <&dsi0>;
+		//display = <&dsi0>;
 		reg = <0 (0x90001000) 0 (720*1280*3)>;
 		width = <720>;
 		height = <1280>;
@@ -37,6 +37,7 @@
 	};*/
 };
 
+#if 1
 &dsi0 {
     #address-cells = <1>;
     #size-cells = <1>;
@@ -51,6 +52,7 @@
 		//backlight = <&pwm_bl>;
 	};
 };
+#endif
 
 &smd_rpm_regulators {
 	/*vdd_s1-supply = <&dummy_reg0>;
@@ -58,15 +60,16 @@
 	vdd_s3-supply = <&dummy_reg0>;
 	vdd_s4-supply = <&dummy_reg0>;
 	vdd_s5-supply = <&dummy_reg0>;
-	vdd_s6-supply = <&dummy_reg0>;
+	vdd_s6-supply = <&dummy_reg0>;*/
 	vdd_l1_l19-supply = <&pm8937_s3>;
 	vdd_l2_l23-supply = <&pm8937_s3>;
 	vdd_l3-supply = <&pm8937_s3>;
 	vdd_l4_l5_l6_l7_l16-supply = <&pm8937_s4>;
 	vdd_l20_l21-supply = <&pm8937_s4>;
-	vdd_l8_l11_l12_l17_l22-supply = <&dummy_reg0>;
-	vdd_l9_l10_l13_l14_l15_l18-supply = <&dummy_reg0>;*/
-	compatible = "qcom,rpm-pmi8950-regulators";
+	//vdd_l8_l11_l12_l17_l22-supply = <&dummy_reg0>;
+	//vdd_l9_l10_l13_l14_l15_l18-supply = <&dummy_reg0>;
+	compatible = "qcom,rpm-pm8950-regulators";
+	status = "okay";
 
 	/* MSM modem */
 	s1 {
@@ -368,26 +371,30 @@
 	};
 };
 
-&sdhc_1 {
-	status = "okay";
+&otg {
+	status = "ok";
+};
 
-	vmmc-supply = <&pm8937_l8>;
-	vqmmc-supply = <&pm8937_l5>;
+&sdhc_1 {
+	//vmmc-supply = <&pm8937_l8>;
+	//vqmmc-supply = <&pm8937_l5>;
+	mmc-hs200-1_8v;
+	mmc-hs400-1_8v;
 
 	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&sdc1_clk_on &sdc1_cmd_on &sdc1_data_on>;
-	pinctrl-1 = <&sdc1_clk_off &sdc1_cmd_off &sdc1_data_off>;
+	pinctrl-0 = <&sdc1_on>;
+	pinctrl-1 = <&sdc1_off>;
+	status = "ok";
 };
 
 &sdhc_2 {
-	status = "okay";
-
-	vmmc-supply = <&pm8937_l11>;
-	vqmmc-supply = <&pm8937_l12>;
+	//vmmc-supply = <&pm8937_l11>;
+	//vqmmc-supply = <&pm8937_l12>;
 
 	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&sdc2_clk_on &sdc2_cmd_on &sdc2_data_on &sdc2_cd_on>;
-	pinctrl-1 = <&sdc2_clk_off &sdc2_cmd_off &sdc2_data_off &sdc2_cd_off>;
+	pinctrl-0 = <&sdc2_on>;
+	pinctrl-1 = <&sdc2_off>;
 
 	cd-gpios = <&msmgpio 67 0>;
+	status = "ok";
 };

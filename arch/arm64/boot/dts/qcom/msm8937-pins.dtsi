@@ -127,95 +127,93 @@
 		};
 	};
 
-	pmx_sdc1_data {
-		sdc1_data_on: data_on {
-			pinmux {
-				pins = "sdc1_data";
-			};
-			pinconf {
-				pins = "sdc1_data";
-				bias-pull-up;
-				drive-strength = <10>;
-			};
+	sdc1_on: sdc1-on {
+		clk {
+			pins = "sdc1_clk";
+			bias-disable;
+			drive-strength = <16>;
 		};
-		sdc1_data_off: data_off {
-			pinmux {
-				pins = "sdc1_data";
-			};
-			pinconf {
-				pins = "sdc1_data";
-				bias-pull-up;
-				drive-strength = <2>;
-			};
+
+		cmd {
+			pins = "sdc1_cmd";
+			bias-pull-up;
+			drive-strength = <10>;
+		};
+
+		data {
+			pins = "sdc1_data";
+			bias-pull-up;
+			drive-strength = <10>;
+		};
+
+		rclk {
+			pins = "sdc1_rclk";
+			bias-pull-down;
 		};
 	};
 
-	pmx_sdc2_clk {
-		sdc2_clk_on: clk_on {
-			pinmux {
-				pins = "sdc2_clk";
-			};
-			pinconf {
-				pins = "sdc2_clk";
-				bias-disable;
-				drive-strength = <16>;
-			};
+	sdc1_off: sdc1-off {
+		clk {
+			pins = "sdc1_clk";
+			bias-disable;
+			drive-strength = <2>;
 		};
-		sdc2_clk_off: clk_off {
-			pinmux {
-				pins = "sdc2_clk";
-			};
-			pinconf {
-				pins = "sdc2_clk";
-				bias-disable;
-				drive-strength = <2>;
-			};
+
+		cmd {
+			pins = "sdc1_cmd";
+			bias-pull-up;
+			drive-strength = <2>;
+		};
+
+		data {
+			pins = "sdc1_data";
+			bias-pull-up;
+			drive-strength = <2>;
+		};
+
+		rclk {
+			pins = "sdc1_rclk";
+			bias-pull-down;
 		};
 	};
 
-	pmx_sdc2_cmd {
-		sdc2_cmd_on: cmd_on {
-			pinmux {
-				pins = "sdc2_cmd";
-			};
-			pinconf {
-				pins = "sdc2_cmd";
-				bias-pull-up;
-				drive-strength = <12>;
-			};
+	sdc2_on: sdc2-on {
+		clk {
+			pins = "sdc2_clk";
+			bias-disable;
+			drive-strength = <16>;
 		};
-		sdc2_cmd_off: cmd_off {
-			pinmux {
-				pins = "sdc2_cmd";
-			};
-			pinconf {
-				pins = "sdc2_cmd";
-				bias-pull-up;
-				drive-strength = <2>;
-			};
+
+		cmd {
+			pins = "sdc2_cmd";
+			bias-pull-up;
+			drive-strength = <10>;
+		};
+
+		data {
+			pins = "sdc2_data";
+			bias-pull-up;
+			drive-strength = <10>;
 		};
 	};
 
-	pmx_sdc2_data {
-		sdc2_data_on: data_on {
-			pinmux {
-				pins = "sdc2_data";
-			};
-			pinconf {
-				pins = "sdc2_data";
-				bias-pull-up;
-				drive-strength = <12>;
-			};
+	sdc2_off: sdc2-off {
+		clk {
+			pins = "sdc2_clk";
+			bias-disable;
+			drive-strength = <2>;
 		};
-		sdc2_data_off: data_off {
-			pinmux {
-				pins = "sdc2_data";
-			};
-			pinconf {
-				pins = "sdc2_data";
-				bias-pull-up;
-				drive-strength = <2>;
-			};
+
+		cmd {
+			pins = "sdc2_cmd";
+			bias-pull-up;
+			drive-strength = <2>;
+		};
+
+		data {
+			pins = "sdc2_data";
+			bias-pull-up;
+			drive-strength = <2>;
 		};
 	};
 

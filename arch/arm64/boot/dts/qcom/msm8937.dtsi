@@ -557,7 +557,6 @@
 				 <&gcc GCC_SDCC1_AHB_CLK>,
 				 <&xo_board>;
 			clock-names = "core", "iface", "xo";
-			mmc-ddr-1_8v;
 			bus-width = <8>;
 			non-removable;
 			status = "disabled";
@@ -578,11 +577,10 @@
 			status = "disabled";
 		};
 
-#if 1
 		otg: usb@78db000 {
 			compatible = "qcom,ci-hdrc";
-			reg = <0x78db000 0x200>,
-			      <0x78db200 0x200>;
+			reg = <0x078db000 0x200>,
+			      <0x078db200 0x200>;
 			interrupts = <GIC_SPI 134 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 140 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&gcc GCC_USB_HS_AHB_CLK>,
@@ -593,36 +591,29 @@
 			resets = <&gcc GCC_USB_HS_BCR>;
 			reset-names = "core";
 			phy_type = "ulpi";
-			dr_mode = "otg";
+			dr_mode = "peripheral";
 			ahb-burst-config = <0>;
 			phy-names = "usb-phy";
 			phys = <&usb_hs_phy>;
-			status = "okay";
+			status = "disabled";
 			#reset-cells = <1>;
-
-			adp-disable;
-			hnp-disable;
-			srp-disable;
-
-			extcon = <&usb_id>, <&usb_id>;
 
 			ulpi {
 				usb_hs_phy: phy {
 					compatible = "qcom,usb-hs-phy-msm8937", "qcom,usb-hs-phy";
 					#phy-cells = <0>;
-					clocks = <&gcc GCC_USB_HS_PHY_CFG_AHB_CLK>, <&gcc GCC_USB2A_PHY_SLEEP_CLK>;
+					clocks = <&xo_board>, <&gcc GCC_USB2A_PHY_SLEEP_CLK>;
 					clock-names = "ref", "sleep";
-					resets = <&gcc GCC_USB2_HS_PHY_ONLY_BCR>;
-					reset-names = "por";
-					qcom,init-seq = /bits/ 8 <0x80 0x53 0x81 0x32 0x82 0x07 0x83 0x13>;
+					resets = <&gcc GCC_USB2_HS_PHY_ONLY_BCR>, <&otg 0>;
+					reset-names = "phy", "por";
+					//qcom,init-seq = /bits/ 8 <0x80 0x53 0x81 0x32 0x82 0x07 0x83 0x13>;
+					qcom,init-seq = /bits/ 8 <0x81 0x39 0x82 0x37>;
 					v1p8-supply = <&pm8937_l7>;
 					v3p3-supply = <&pm8937_l13>;
-					extcon = <&usb_id>;
-					// vdd_dig l2 ?
+					//extcon = <&usb_id> // FIXME: needed to support host mode
 				};
 			};
 		};
-#endif
 
 		intc: interrupt-controller@b000000 {
 			compatible = "qcom,msm-qgic2";
@@ -1350,7 +1341,7 @@
 
 	usb_id: usb-id {
 		compatible = "linux,extcon-usb-gpio";
-		vbus-gpio = <&msmgpio 91 GPIO_ACTIVE_HIGH>;
+		// ????
 	};
 
 	/*battery_data: qcom,battery-data {

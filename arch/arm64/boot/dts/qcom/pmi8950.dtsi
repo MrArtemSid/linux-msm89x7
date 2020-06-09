@@ -7,7 +7,6 @@
 #include <dt-bindings/spmi/spmi.h>
 
 &spmi_bus {
-
 	pmi8950_2: pmic@2 {
 		compatible = "qcom,pmi8950", "qcom,spmi-pmic";
 		reg = <2 SPMI_USID>;
@@ -29,57 +28,87 @@
 				interrupts = <0x0 0x8 0 IRQ_TYPE_EDGE_BOTH>;
 				debounce = <15625>;
 				bias-pull-up;
-				//linux,code = <KEY_POWER>;
-				linux,code = <KEY_ENTER>;
+				linux,code = <KEY_POWER>;
 			};
+		};
+
+		rtc@6000 {
+			compatible = "qcom,pm8941-rtc";
+			reg = <0x6000>;
+			reg-names = "rtc", "alarm";
+			interrupts = <0x0 0x61 0x1 IRQ_TYPE_NONE>;
 		};
 
 		pmi8950_vadc: vadc@3100 {
 			compatible = "qcom,spmi-vadc";
 			reg = <0x3100>;
-			interrupts = <0x00 0x3 0x00 0x01>;
+			interrupts = <0x2 0x31 0x0 IRQ_TYPE_EDGE_RISING>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#io-channel-cells = <1>;
 
 			usbin {
+				label = "usbin";
 				reg = <VADC_USBIN>;
+				qcom,hw-settle-time = <0x0>;
+				qcom,pre-scaling = <1 4>;
 			};
 
 			dcin {
+				label = "dcin";
 				reg = <VADC_DCIN>;
+				qcom,hw-settle-time = <0x0>;
+				qcom,pre-scaling = <1 4>;
 			};
 
 			vchg_sns {
+				label = "vchg_sns";
 				reg = <VADC_VCHG_SNS>;
+				qcom,hw-settle-time = <0x0>;
+				qcom,pre-scaling = <1 1>;
 			};
 
 			ref_625mv {
+				label = "ref_625mv";
 				reg = <VADC_REF_625MV>;
+				qcom,hw-settle-time = <0x0>;
+				qcom,pre-scaling = <1 1>;
 			};
 
-			ref_1250mv {
+			ref_1250v {
+				label = "ref_1250v";
 				reg = <VADC_REF_1250MV>;
+				qcom,hw-settle-time = <0x0>;
+				qcom,pre-scaling = <1 1>;
+			};
+
+			ref_gnd {
+				reg = <VADC_GND_REF>;
+			};
+
+			ref_vdd {
+				reg = <VADC_VDD_VADC>;
 			};
 
 			chg_temp {
 				reg = <VADC_CHG_TEMP>;
+				qcom,hw-settle-time = <0x0>;
 			};
 
-			/*usb_dp {
-				//FIXME: Unsupported?
-				reg = <0x43>;
+			usb_dp {
+				reg = <VADC_USB_DP>;
+				qcom,hw-settle-time = <0x0>;
 			};
 
 			usb_dm {
-				//FIXME: Unsupported?
-				reg = <0x44>;
+				reg = <VADC_USB_DM>;
+				qcom,hw-settle-time = <0x0>;
 			};
 
 			host_det {
-				//FIXME: Unsupported?
 				reg = <VADC_P_MUX1_1_1>;
-			};*/
+				qcom,hw-settle-time = <0x0>;
+			};
 		};
 
 		pmi8950_gpios: gpios@c000 {
@@ -142,7 +171,7 @@
 			status = "disabled";
 		};
 
-		fuel_guage {
+		fuel_gauge {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "qcom,pmi8950-fg";
