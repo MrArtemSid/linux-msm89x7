@@ -1109,7 +1109,7 @@ static const struct pmic_arb_ver_ops pmic_arb_v1 = {
 
 static const struct pmic_arb_ver_ops pmic_arb_v2 = {
 	.ver_str		= "v2",
-	.ppid_to_apid		= pmic_arb_ppid_to_apid_v2,
+	.ppid_to_apid		= pmic_arb_ppid_to_apid_v1, // santoni hack
 	.non_data_cmd		= pmic_arb_non_data_cmd_v2,
 	.offset			= pmic_arb_offset_v2,
 	.fmt_cmd		= pmic_arb_fmt_cmd_v2,
