@@ -1842,12 +1842,14 @@ static int arm_smmu_device_cfg_probe(struct arm_smmu_device *smmu)
 	} else {
 		size = FIELD_GET(ARM_SMMU_ID2_UBS, id);
 		smmu->va_size = arm_smmu_id_size_to_bits(size);
-		if (id & ARM_SMMU_ID2_PTFS_4K)
-			smmu->features |= ARM_SMMU_FEAT_FMT_AARCH64_4K;
-		if (id & ARM_SMMU_ID2_PTFS_16K)
-			smmu->features |= ARM_SMMU_FEAT_FMT_AARCH64_16K;
-		if (id & ARM_SMMU_ID2_PTFS_64K)
-			smmu->features |= ARM_SMMU_FEAT_FMT_AARCH64_64K;
+		if(!of_device_is_compatible(smmu->dev->of_node, "arm,mmu32-500")) {
+			if (id & ARM_SMMU_ID2_PTFS_4K)
+				smmu->features |= ARM_SMMU_FEAT_FMT_AARCH64_4K;
+			if (id & ARM_SMMU_ID2_PTFS_16K)
+				smmu->features |= ARM_SMMU_FEAT_FMT_AARCH64_16K;
+			if (id & ARM_SMMU_ID2_PTFS_64K)
+				smmu->features |= ARM_SMMU_FEAT_FMT_AARCH64_64K;
+		}
 	}
 
 	if (smmu->impl && smmu->impl->cfg_probe) {
@@ -1907,6 +1909,7 @@ static const struct of_device_id arm_smmu_of_match[] = {
 	{ .compatible = "arm,mmu-400", .data = &smmu_generic_v1 },
 	{ .compatible = "arm,mmu-401", .data = &arm_mmu401 },
 	{ .compatible = "arm,mmu-500", .data = &arm_mmu500 },
+	{ .compatible = "arm,mmu32-500", .data = &arm_mmu500 },
 	{ .compatible = "cavium,smmu-v2", .data = &cavium_smmuv2 },
 	{ .compatible = "nvidia,smmu-500", .data = &arm_mmu500 },
 	{ .compatible = "qcom,smmu-v2", .data = &qcom_smmuv2 },
