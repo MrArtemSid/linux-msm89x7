@@ -182,7 +182,7 @@ static bool qcom_adreno_can_do_ttbr1(struct arm_smmu_device *smmu)
 {
 	const struct device_node *np = smmu->dev->of_node;
 
-	if (of_device_is_compatible(np, "qcom,msm8996-smmu-v2"))
+	if (of_device_is_compatible(np, "qcom,msm8996-smmu-v2") || of_device_is_compatible(np, "qcom,msm8937-smmu-v2"))
 		return false;
 
 	return true;
@@ -401,6 +401,7 @@ static const struct of_device_id __maybe_unused qcom_smmu_impl_of_match[] = {
 	{ .compatible = "qcom,sm8150-smmu-500" },
 	{ .compatible = "qcom,sm8250-smmu-500" },
 	{ .compatible = "qcom,sm8350-smmu-500" },
+	{ .compatible = "qcom,msm8937-smmu-v2" },
 	{ }
 };
 
