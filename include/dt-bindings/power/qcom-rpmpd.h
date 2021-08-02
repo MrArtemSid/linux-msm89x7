@@ -133,6 +133,13 @@
 #define MSM8916_VDDMX		3
 #define MSM8916_VDDMX_AO	4
 
+/* MSM8937 Power Domain Indexes */
+#define MSM8937_VDDCX		0
+#define MSM8937_VDDCX_AO	1
+#define MSM8937_VDDCX_VFC	2
+#define MSM8937_VDDMX		3
+#define MSM8937_VDDMX_AO	4
+
 /* MSM8976 Power Domain Indexes */
 #define MSM8976_VDDCX		0
 #define MSM8976_VDDCX_AO	1
