@@ -1,0 +1,20 @@
+// SPDX-License-Identifier: GPL-2.0-only
+#include "msm8937.dtsi"
+
+/ {
+	model = "Qualcomm Technologies, Inc. MSM8940";
+	compatible = "qcom,msm8940";
+	qcom,msm-id = <313 0x0>;
+};
+
+&gcc {
+	compatible = "qcom,gcc-8940";
+};
+
+&rpm_requests {
+	compatible = "qcom,rpm-msm8940";
+};
+
+&rpmcc {
+	compatible = "qcom,rpmcc-msm8940";
+};
