@@ -18,3 +18,14 @@
 &rpmcc {
 	compatible = "qcom,rpmcc-msm8940";
 };
+
+&qfprom {
+	cpr_pvs_revision: revision@12d {
+		reg = <0x12d 0x4>;
+		bits = <0 3>;
+	};
+};
+
+&cpr {
+	compatible = "qcom,msm8940-cpr", "qcom,cpr";
+};

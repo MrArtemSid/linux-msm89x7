@@ -125,7 +125,7 @@
 			vreg_apc: s5 {
 				qcom,saw-leader;
 				regulator-min-microvolt = <1050000>;
-				regulator-max-microvolt = <1250000>;
+				regulator-max-microvolt = <1350000>;
 				regulator-always-on;
 				regulator-initial-mode = <1>;
 				regulator-allowed-modes = <1>, <2>, <3>;
