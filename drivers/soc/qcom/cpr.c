@@ -237,6 +237,7 @@ struct cpr_drv {
 	struct regmap		*tcsr;
 	bool			loop_disabled;
 	u32			gcnt;
+	u32			vdd_apc_step;
 	unsigned long		flags;
 
 	struct fuse_corner	*fuse_corners;
@@ -468,10 +469,7 @@ static int cpr_scale(struct cpr_drv *drv, enum voltage_change_dir dir)
 	if (dir != UP && dir != DOWN)
 		return 0;
 
-	step_uV = regulator_get_linear_step(drv->vdd_apc);
-	if (!step_uV)
-		return -EINVAL;
-
+	step_uV = drv->vdd_apc_step;
 	corner = drv->corner;
 
 	val = cpr_read(drv, REG_RBCPR_RESULT_0);
@@ -892,10 +890,7 @@ static int cpr_fuse_corner_init(struct cpr_drv *drv)
 	int ret;
 
 	accs = acc_desc->settings;
-
-	step_volt = regulator_get_linear_step(drv->vdd_apc);
-	if (!step_volt)
-		return -EINVAL;
+	step_volt = drv->vdd_apc_step;
 
 	/* Populate fuse_corner members */
 	fuse = drv->fuse_corners;
@@ -1120,11 +1115,8 @@ static int cpr_corner_init(struct cpr_drv *drv)
 	bool apply_scaling;
 	unsigned long freq_diff, freq_diff_mhz;
 	unsigned long freq;
-	int step_volt = regulator_get_linear_step(drv->vdd_apc);
+	int step_volt = drv->vdd_apc_step;
 	struct dev_pm_opp *opp;
-
-	if (!step_volt)
-		return -EINVAL;
 
 	corner = drv->corners;
 	end = &corner[drv->num_corners - 1];
@@ -1951,6 +1943,10 @@ static int cpr_probe(struct platform_device *pdev)
 	drv->vdd_apc = devm_regulator_get(dev, "vdd-apc");
 	if (IS_ERR(drv->vdd_apc))
 		return PTR_ERR(drv->vdd_apc);
+
+	if (of_property_read_u32(dev->of_node, "vdd-apc-step-uv",
+				 &drv->vdd_apc_step))
+		return -ENOENT;
 
 	/*
 	 * Initialize fuse corners, since it simply depends
