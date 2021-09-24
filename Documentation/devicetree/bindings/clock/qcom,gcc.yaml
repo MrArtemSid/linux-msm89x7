@@ -22,6 +22,7 @@ description: |
   - dt-bindings/reset/qcom,gcc-ipq6018.h
   - dt-bindings/clock/qcom,gcc-ipq806x.h (qcom,gcc-ipq8064)
   - dt-bindings/reset/qcom,gcc-ipq806x.h (qcom,gcc-ipq8064)
+  - dt-bindings/clock/qcom,gcc-msm8937.h
   - dt-bindings/clock/qcom,gcc-msm8939.h
   - dt-bindings/reset/qcom,gcc-msm8939.h
   - dt-bindings/clock/qcom,gcc-msm8660.h
@@ -45,7 +46,10 @@ properties:
       - qcom,gcc-msm8226
       - qcom,gcc-msm8660
       - qcom,gcc-msm8916
+      - qcom,gcc-msm8917
+      - qcom,gcc-msm8937
       - qcom,gcc-msm8939
+      - qcom,gcc-msm8940
       - qcom,gcc-msm8960
       - qcom,gcc-msm8974
       - qcom,gcc-msm8974pro
