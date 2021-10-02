@@ -804,17 +804,6 @@
 			status = "disabled";
 		};
 
-		blsp2_dma: dma-controller@7ac4000 {
-			compatible = "qcom,bam-v1.7.0";
-			reg = <0x7ac4000 0x1f000>;
-			interrupts = <GIC_SPI 239 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&gcc GCC_BLSP2_AHB_CLK>;
-			clock-names = "bam_clk";
-			#dma-cells = <1>;
-			qcom,ee = <0>;
-			status = "disabled";
-		};
-
 		blsp1_uart1: serial@78af000 {
 			compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
 			reg = <0x078af000 0x200>;
@@ -855,8 +844,6 @@
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&i2c_2_default>;
 			pinctrl-1 = <&i2c_2_sleep>;
-			dmas = <&blsp1_dma 7>, <&blsp1_dma 6>;
-			dma-names = "rx", "tx";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
@@ -872,8 +859,6 @@
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&i2c_3_default>;
 			pinctrl-1 = <&i2c_3_sleep>;
-			dmas = <&blsp1_dma 9>, <&blsp1_dma 8>;
-			dma-names = "rx", "tx";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
@@ -904,8 +889,6 @@
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&i2c_4_default>;
 			pinctrl-1 = <&i2c_4_sleep>;
-			dmas = <&blsp1_dma 11>, <&blsp1_dma 10>;
-			dma-names = "rx", "tx";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
@@ -921,8 +904,6 @@
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&i2c_5_default>;
 			pinctrl-1 = <&i2c_5_sleep>;
-			dmas = <&blsp2_dma 5>, <&blsp2_dma 4>;
-			dma-names = "rx", "tx";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
