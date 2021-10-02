@@ -778,8 +778,6 @@
 			reg = <0x1800000 0x80000>,
 			 <0x00a6018 0x00004>;
 			reg-names = "cc_base", "gpu-bin";
-			clocks = <&rpmcc RPM_SMD_XO_CLK_SRC>;
-			clock-names = "bi_tcxo";
 			#clock-cells = <1>;
 			#reset-cells = <1>;
 			#power-domain-cells = <1>;
