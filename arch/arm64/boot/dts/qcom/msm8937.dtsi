@@ -653,7 +653,7 @@
 			compatible = "qcom,msm8937-apcs-kpss-global", "syscon";
 			reg = <0x0b011050 0x1000>;
 			#mbox-cells = <1>;
-			clocks = <&a53pll_c1>, <&gcc GPLL0_AO_OUT_MAIN>;
+			clocks = <&a53pll_c1>, <&gcc GPLL0_EARLY>;
 			clock-names = "pll", "aux";
 			#clock-cells = <0>;
 			clock-output-names = "a53mux_c1";
@@ -672,7 +672,7 @@
 			compatible = "qcom,msm8937-apcs-kpss-global", "syscon";
 			reg = <0xb111050 0x1000>;
 			#mbox-cells = <1>;
-			clocks = <&a53pll_c0>, <&gcc GPLL0_AO_OUT_MAIN>;
+			clocks = <&a53pll_c0>, <&gcc GPLL0_EARLY>;
 			clock-names = "pll", "aux";
 			#clock-cells = <0>;
 			clock-output-names = "a53mux_c0";
@@ -691,7 +691,7 @@
 			compatible = "qcom,msm8937-apcs-kpss-global", "syscon";
 			reg = <0xb1d1050 0x1000>;
 			#mbox-cells = <1>;
-			clocks = <&a53pll_cci>, <&gcc GPLL0_AO_OUT_MAIN>;
+			clocks = <&a53pll_cci>, <&gcc GPLL0_EARLY>;
 			clock-names = "pll", "aux";
 			#clock-cells = <0>;
 			clock-output-names = "a53mux_cci";
@@ -753,7 +753,7 @@
 			    	 <&gcc GCC_BIMC_GFX_CLK>;
 			clock-names = "iface", "bus";
 			qcom,iommu-secure-id = <18>;
-			power-domains = <&gcc OXILI_GDSC>;
+			power-domains = <&gcc OXILI_CX_GDSC>;
 
 			iommu-ctx@0000 { // gfx3d_user:
 				compatible = "qcom,msm-iommu-v1-ns";
@@ -986,7 +986,6 @@
 				      "mem_iface",
 				      "rbbmtimer",
 				      "alwayson";
-			power-domains = <&gcc OXILI_GDSC>;
 			operating-points-v2 = <&gpu_opp_table>;
 			#cooling-cells = <2>;
 			iommus = <&gpu_iommu 0>;
