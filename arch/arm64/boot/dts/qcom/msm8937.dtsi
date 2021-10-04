@@ -607,7 +607,7 @@
 			      <0x004a8000 0x1000>;
 			nvmem-cells = <&tsens_caldata>;
 			nvmem-cell-names = "calib";
-			#qcom,sensors = <11>;
+			#qcom,sensors = <10>;
 			interrupts = <GIC_SPI 184 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "uplow";
 			#thermal-sensor-cells = <1>;
@@ -789,37 +789,37 @@
 			ranges;
 
 			dsi_phy0: dsi-phy@1a94400 {
-				compatible = "qcom,dsi-phy-28nm-lp";
-				reg = <0x1a94400 0x100>,
-				      <0x1a94500 0x300>,
-				      <0x1a94800 0x188>;
-
-				reg-names = "dsi_phy",
-				            "dsi_phy_lane",
-				            "dsi_pll";
+				compatible = "qcom,dsi-phy-28nm-lp-fam-b";
+				reg = <0x1a94a00 0xd4>,
+				      <0x1a94400 0x280>,
+				      <0x1a94b80 0x30>;
+				reg-names = "dsi_pll",
+					    "dsi_phy",
+					    "dsi_phy_regulator";
 
 				#clock-cells = <1>;
 				#phy-cells = <0>;
 
-				clocks = <&gcc GCC_MDSS_AHB_CLK>;
-				clock-names = "iface";
+				clocks = <&gcc GCC_MDSS_AHB_CLK>,
+					 <&xo_board>;
+				clock-names = "iface", "ref";
 			};
 
 			dsi_phy1: dsi-phy@1a96400 {
-				compatible = "qcom,dsi-phy-28nm-lp";
-				reg = <0x1a96400 0x100>,
-				      <0x1a96500 0x300>,
-				      <0x1a96800 0x188>;
-
-				reg-names = "dsi_phy",
-				            "dsi_phy_lane",
-				            "dsi_pll";
+				compatible = "qcom,dsi-phy-28nm-lp-fam-b";
+				reg = <0x1a96a00 0xd4>,
+				      <0x1a96400 0x280>,
+				      <0x1a94b80 0x30>;
+				reg-names = "dsi_pll",
+					    "dsi_phy",
+					    "dsi_phy_regulator";
 
 				#clock-cells = <1>;
 				#phy-cells = <0>;
 
-				clocks = <&gcc GCC_MDSS_AHB_CLK>;
-				clock-names = "iface";
+				clocks = <&gcc GCC_MDSS_AHB_CLK>,
+					 <&xo_board>;
+				clock-names = "iface", "ref";
 
 				status = "disabled";
 			};
