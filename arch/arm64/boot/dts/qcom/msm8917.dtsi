@@ -169,10 +169,6 @@
 
 	a53pll_opp_table: a53pllc1-opp-table {
 		compatible = "operating-points-v2";
-		opp-345600000 { opp-hz = /bits/ 64 <345600000>; };
-		opp-422400000 { opp-hz = /bits/ 64 <422400000>; };
-		opp-499200000 { opp-hz = /bits/ 64 <499200000>; };
-		opp-652800000 { opp-hz = /bits/ 64 <652800000>; };
 		opp-729600000 { opp-hz = /bits/ 64 <729600000>; };
 		opp-806400000 { opp-hz = /bits/ 64 <806400000>; };
 		opp-844800000 { opp-hz = /bits/ 64 <844800000>; };
@@ -188,10 +184,7 @@
 		opp-1305600000 { opp-hz = /bits/ 64 <1305600000>; };
 		opp-1344000000 { opp-hz = /bits/ 64 <1344000000>; };
 		opp-1401000000 { opp-hz = /bits/ 64 <1401000000>; };
-		opp-1420800000 { opp-hz = /bits/ 64 <1420800000>; };
-		opp-1440000000 { opp-hz = /bits/ 64 <1440000000>; };
 		opp-1459200000 { opp-hz = /bits/ 64 <1459200000>; };
-		opp-1497600000 { opp-hz = /bits/ 64 <1497600000>; };
 	};
 
 	cluster0_opp_table: cluster0-opp-table {
@@ -199,25 +192,25 @@
 			     	 "operating-points-v2-kryo-cpu";
 		nvmem-cells = <&cpr_efuse_speedbin>;
 		opp-shared;
-		opp-960000000 {
-			opp-hz = /bits/ 64 <960000000>;
-			opp-peak-kBps = <2265000>;
+		opp-729600000 {
+			opp-hz = /bits/ 64 <729600000>;
 			required-opps = <&cpr_opp1>;
 			opp-suspend;
 		};
+		opp-960000000 {
+			opp-hz = /bits/ 64 <960000000>;
+			required-opps = <&cpr_opp1>;
+		};
 		opp-1094400000 {
 			opp-hz = /bits/ 64 <1094400000>;
-			opp-peak-kBps = <4248000>;
 			required-opps = <&cpr_opp2>;
 		};
 		opp-1248000000 {
 			opp-hz = /bits/ 64 <1248000000>;
-			opp-peak-kBps = <4541000>;
 			required-opps = <&cpr_opp3>;
 		};
-		opp-1401000000 {
-			opp-hz = /bits/ 64 <1401000000>;
-			opp-peak-kBps = <5126000>;
+		opp-1459200000 {
+			opp-hz = /bits/ 64 <1459200000>;
 			required-opps = <&cpr_opp3>;
 		};
 	};
@@ -252,12 +245,14 @@
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <19200000>;
+			clock-output-names = "xo";
 		};
 
 		sleep_clk: sleep-clk {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <32768>;
+			clock-output-names = "sleep_clk";
 		};
 	};
     
@@ -462,7 +457,7 @@
 			      <0x004a8000 0x1000>;
 			nvmem-cells = <&tsens_caldata>;
 			nvmem-cell-names = "calib";
-			#qcom,sensors = <9>;
+			#qcom,sensors = <10>;
 			interrupts = <GIC_SPI 184 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "uplow";
 			#thermal-sensor-cells = <1>;
@@ -602,10 +597,10 @@
 			ranges;
 
 			dsi_phy0: dsi-phy@1a94400 {
-				compatible = "qcom,dsi-phy-28nm-lp";
-				reg = <0x1a94400 0x100>,
-				      <0x1a94500 0x300>,
-				      <0x1a94800 0x188>;
+				compatible = "qcom,dsi-phy-28nm-lp-single-fam-b";
+				reg = <0x1a94a00 0xd4>,
+				      <0x1a94400 0x280>,
+				      <0x1a94b80 0x30>;
 				reg-names = "dsi_pll",
 					    "dsi_phy",
 					    "dsi_phy_regulator";

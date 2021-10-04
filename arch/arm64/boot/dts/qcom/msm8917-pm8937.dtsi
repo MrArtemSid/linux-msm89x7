@@ -13,13 +13,13 @@
 };
 
 &sdhc_1 {
-	vmmc-supply = <&pm8937_l8>;
-	vqmmc-supply = <&pm8937_l5>;
+	//vmmc-supply = <&pm8937_l8>;
+	//vqmmc-supply = <&pm8937_l5>;
 };
 
 &sdhc_2 {
-	vmmc-supply = <&pm8937_l11>;
-	vqmmc-supply = <&pm8937_l12>;
+	//vmmc-supply = <&pm8937_l11>;
+	//vqmmc-supply = <&pm8937_l12>;
 };
 
 &cpr {
