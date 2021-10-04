@@ -1,8 +1,9 @@
 /dts-v1/;
 
 #include "msm8917-pm8937.dtsi"
-#include <dt-bindings/leds/common.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/leds/common.h>
+#include <dt-bindings/pinctrl/qcom,pmic-mpp.h>
 
 / {
 	model = "Xiaomi Redmi 4A (rolex)";
@@ -16,9 +17,11 @@
 	};
 
 	chosen {
+		bootargs = "earlycon=tty0 console=tty0";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
+		stdout-path = "framebuffer0";
 		framebuffer0: framebuffer@90001000 {
 			compatible = "simple-framebuffer";
 			reg = <0 (0x90001000) 0 (720*1280*3)>;
@@ -46,6 +49,15 @@
 		};
 	};
 
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pm8937_pwm 0 100000>;
+
+		brightness-levels = <0 255>;
+		num-interpolated-steps = <255>;
+		default-brightness-level = <255>;
+	};
+
 	gpio-keys {
 		compatible = "gpio-keys";
 
@@ -64,6 +76,30 @@
 
 &blsp_i2c2 {
 	status = "okay";
+	regulator@3e {
+		compatible = "ti,tps65132";
+		reg = <0x3e>;
+
+		//pinctrl-names = "default";
+		//pinctrl-0 = <&reg_lcd_en_default>;
+
+		reg_lcd_pos: outp {
+			regulator-name = "outp";
+			regulator-min-microvolt = <5000000>;
+			regulator-max-microvolt = <5000000>;
+			enable-gpios = <&msmgpio 126 GPIO_ACTIVE_HIGH>;
+			regulator-active-discharge = <1>;
+		};
+
+		reg_lcd_neg: outn {
+			regulator-name = "outn";
+			regulator-min-microvolt = <5000000>;
+			regulator-max-microvolt = <5000000>;
+			enable-gpios = <&msmgpio 127 GPIO_ACTIVE_HIGH>;
+			regulator-active-discharge = <1>;
+		};
+	};
+
 	led-controller@45 {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -144,6 +180,9 @@
 		compatible = "mdss,nt35521s-ebbg";
 		reg = <0>;
 		
+		backlight = <&backlight>;
+		vsp-supply = <&reg_lcd_pos>;
+		vsn-supply = <&reg_lcd_neg>;
 		reset-gpios = <&msmgpio 60 GPIO_ACTIVE_HIGH>;
 		
 		pinctrl-names = "default", "sleep";
@@ -161,6 +200,10 @@
 &dsi0_out {
 	data-lanes = <0 1 2 3>;
 	remote-endpoint = <&panel_in>;
+};
+
+&dsi_phy0 {
+	qcom,dsi-phy-regulator-ldo-mode;
 };
 
 &sdhc_1 {
@@ -208,35 +251,33 @@
 		drive-strength = <2>;
 		bias-pull-down;
 	};
-	
-	mdss_dsi_active: mdss_dsi_active {
-		pins = "gpio60", "gpio98", "gpio99";
+	/*
+	reg_lcd_en_default: reg_lcd_en_default {
+		pins = "gpio126", "gpio127";
 		function = "gpio";
-		drive-strength = <8>; /* 8 mA */
-		bias-disable = <0>; /* no pull */
-		output-high;
-	};
+		drive-strength = <2>;
+		bias-pull-down;
+	};*/
+};
 
-	mdss_dsi_suspend: mdss_dsi_suspend {
-		pins = "gpio60", "gpio98", "gpio99";
-		function = "gpio";
-		drive-strength = <2>; /* 2 mA */
-		bias-pull-down; /* pull down */
-		input-enable;
-	};
-	
-	mdss_te_active: mdss_te_active {
-		pins = "gpio24";
-		function = "mdp_vsync";
-		drive-strength = <2>; /* 8 mA */
-		bias-pull-down; /* pull down*/
-	};
+&pm8937_pwm {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pwm_out>;
+};
 
-	mdss_te_suspend: mdss_te_suspend {
-		pins = "gpio24";
-		function = "mdp_vsync";
-		drive-strength = <2>; /* 2 mA */
-		bias-pull-down; /* pull down */
+&pm8937_vib {
+	status = "okay";
+};
+
+&pm8937_mpps {
+	pwm_out: mpp4 {
+		pins = "mpp4";
+		function = "digital";
+
+		output-low;
+		qcom,dtest = <1>;
+		power-source = <PM8916_MPP_VPH>;
 	};
 };
 
