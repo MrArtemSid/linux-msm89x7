@@ -301,6 +301,7 @@
 	l5 {
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
 	};
 	l6 {
 		regulator-min-microvolt = <1800000>;
@@ -354,6 +355,18 @@
 	l19 {
 		regulator-min-microvolt = <1225000>;
 		regulator-max-microvolt = <1350000>;
+	};
+	l20 {
+		regulator-min-microvolt = <1740000>;
+		regulator-max-microvolt = <1740000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+	l21 {
+		regulator-min-microvolt = <1740000>;
+		regulator-max-microvolt = <1740000>;
+		regulator-boot-on;
+		regulator-always-on;
 	};
 	l22 {
 		regulator-min-microvolt = <2800000>;
