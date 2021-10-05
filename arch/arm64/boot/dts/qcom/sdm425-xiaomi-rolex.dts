@@ -76,6 +76,25 @@
 
 &blsp_i2c2 {
 	status = "okay";
+	light-sensor@23 {
+		compatible = "liteon,ltr559";
+		reg = <0x23>;
+		vdd-supply = <&pm8937_l17>;
+		vio-supply = <&pm8937_l6>;
+
+		interrupt-parent = <&msmgpio>;
+		interrupts = <115 IRQ_TYPE_EDGE_FALLING>;
+	};
+/*
+	magnetometer@2e {
+    	compatible = "yamaha,yas537";
+    	reg = <0x2e>;
+    	vdd-supply = <&pm8937_l17>;
+    	iovdd-supply = <&pm8937_l6>;
+    	reset-gpios = <&msmgpio 12 GPIO_ACTIVE_LOW>;
+    	interrupts = <&msmgpio 13 IRQ_TYPE_EDGE_RISING>;
+    };
+*/
 	regulator@3e {
 		compatible = "ti,tps65132";
 		reg = <0x3e>;
@@ -160,6 +179,17 @@
 
 &blsp_i2c3 {
 	status = "okay";
+	imu@68 {
+		compatible = "bosch,bmi160";
+		reg = <0x68>;
+
+		vdd-supply = <&pm8937_l17>;
+		vddio-supply = <&pm8937_l6>;
+
+		mount-matrix = "0", "1", "0",
+			      "-1", "0", "0",
+			       "0", "0", "1";
+	};
 
 	touchscreen@38 {
 		compatible = "edt,edt-ft5306", "edt,edt-ft5x06";
