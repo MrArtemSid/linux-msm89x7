@@ -317,23 +317,19 @@
 		opp-shared;
 		opp-768000000 {
 			opp-hz = /bits/ 64 <768000000>;
-			opp-peak-kBps = <2929000>;
 			required-opps = <&cpr_opp1>;
 			opp-suspend;
 		};
 		opp-902400000 {
 			opp-hz = /bits/ 64 <902400000>;
-			opp-peak-kBps = <5053000>;
 			required-opps = <&cpr_opp2>;
 		};
 		opp-998400000 {
 			opp-hz = /bits/ 64 <998400000>;
-			opp-peak-kBps = <6152000>;
 			required-opps = <&cpr_opp3>;
 		};
 		opp-1094400000 {
 			opp-hz = /bits/ 64 <1094400000>;
-			opp-peak-kBps = <7031000>;
 			required-opps = <&cpr_opp3>;
 		};
 	};
@@ -345,28 +341,23 @@
 		opp-shared;
 		opp-960000000 {
 			opp-hz = /bits/ 64 <960000000>;
-			opp-peak-kBps = <2929000>;
 			required-opps = <&cpr_opp1>;
 			opp-suspend;
 		};
 		opp-1094400000 {
 			opp-hz = /bits/ 64 <1094400000>;
-			opp-peak-kBps = <5053000>;
 			required-opps = <&cpr_opp2>;
 		};
 		opp-1248000000 {
 			opp-hz = /bits/ 64 <1248000000>;
-			opp-peak-kBps = <5712000>;
 			required-opps = <&cpr_opp3>;
 		};
 		opp-1344000000 {
 			opp-hz = /bits/ 64 <1344000000>;
-			opp-peak-kBps = <7031000>;
 			required-opps = <&cpr_opp3>;
 		};
 		opp-1401000000 {
 			opp-hz = /bits/ 64 <1401000000>;
-			opp-peak-kBps = <7031000>;
 			required-opps = <&cpr_opp3>;
 		};
 	};
@@ -401,12 +392,14 @@
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <19200000>;
+			clock-output-names = "xo";
 		};
 
 		sleep_clk: sleep-clk {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <32768>;
+			clock-output-names = "sleep_clk";
 		};
 	};
 	
@@ -602,6 +595,7 @@
 		};
 
 		tsens: thermal-sensor@4a9000 {
+			status = "disabled";
 			compatible = "qcom,msm8937-tsens", "qcom,tsens-v1";
 			reg = <0x004a9000 0x1000>,
 			      <0x004a8000 0x1000>;
@@ -650,7 +644,7 @@
 		};
 
 		apcs_c1: mailbox@b011050 {
-			compatible = "qcom,msm8937-apcs-kpss-global", "syscon";
+			compatible = "qcom,msm8916-apcs-kpss-global", "syscon";
 			reg = <0x0b011050 0x1000>;
 			#mbox-cells = <1>;
 			clocks = <&a53pll_c1>, <&gcc GPLL0_EARLY>;
@@ -669,7 +663,7 @@
 		};
 
 		apcs_c0: mailbox@b111050 {
-			compatible = "qcom,msm8937-apcs-kpss-global", "syscon";
+			compatible = "qcom,msm8916-apcs-kpss-global", "syscon";
 			reg = <0xb111050 0x1000>;
 			#mbox-cells = <1>;
 			clocks = <&a53pll_c0>, <&gcc GPLL0_EARLY>;
@@ -688,7 +682,7 @@
 		};
 
 		apcs_cci: mailbox@b1d1050 {
-			compatible = "qcom,msm8937-apcs-kpss-global", "syscon";
+			compatible = "qcom,msm8916-apcs-kpss-global", "syscon";
 			reg = <0xb1d1050 0x1000>;
 			#mbox-cells = <1>;
 			clocks = <&a53pll_cci>, <&gcc GPLL0_EARLY>;
@@ -754,6 +748,7 @@
 			clock-names = "iface", "bus";
 			qcom,iommu-secure-id = <18>;
 			power-domains = <&gcc OXILI_CX_GDSC>;
+			status = "disabled";
 
 			iommu-ctx@0000 { // gfx3d_user:
 				compatible = "qcom,msm-iommu-v1-ns";
@@ -988,7 +983,7 @@
 				      "alwayson";
 			operating-points-v2 = <&gpu_opp_table>;
 			#cooling-cells = <2>;
-			iommus = <&gpu_iommu 0>;
+			//iommus = <&gpu_iommu 0>;
 
 			gpu_opp_table: opp-table {
 				compatible  ="operating-points-v2";
