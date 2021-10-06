@@ -672,20 +672,11 @@
 			clock-output-names = "a53mux_c0";
 		};
 
-		a53pll_cci: clock-controller@b1d0050 {
-			compatible = "qcom,msm8939-a53pll";
-			reg = <0xb1d0050 0x40>;
-			#clock-cells = <0>;
-			clocks = <&xo_board>;
-			clock-names = "xo";
-			operating-points-v2 = <&a53pllcci_opp_table>;
-		};
-
 		apcs_cci: mailbox@b1d1050 {
 			compatible = "qcom,msm8916-apcs-kpss-global", "syscon";
 			reg = <0xb1d1050 0x1000>;
 			#mbox-cells = <1>;
-			clocks = <&a53pll_cci>, <&gcc GPLL0_EARLY>;
+			clocks = <&a53pll_c0>, <&gcc GPLL0_EARLY>;
 			clock-names = "pll", "aux";
 			#clock-cells = <0>;
 			clock-output-names = "a53mux_cci";
