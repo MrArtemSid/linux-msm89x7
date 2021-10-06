@@ -1,0 +1,321 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2018-2020 Linaro Ltd
+ * Based on msm8916.c (author: Georgi Djakov <georgi.djakov@linaro.org>)
+ */
+
+#include <linux/clk.h>
+#include <linux/device.h>
+#include <linux/interconnect-provider.h>
+#include <linux/io.h>
+#include <linux/module.h>
+#include <linux/of_device.h>
+#include <linux/platform_device.h>
+#include <linux/regmap.h>
+#include <linux/slab.h>
+
+#include <dt-bindings/interconnect/qcom,msm8937.h>
+
+#include "smd-rpm.h"
+#include "icc-rpm.h"
+
+enum {
+	MSM8937_NODE_NONE = 0,
+	MSM8937_MASTER_AMPSS_M0,
+	MSM8937_MASTER_GRAPHICS_3D,
+	MSM8937_SNOC_BIMC_0_MAS,
+	MSM8937_SNOC_BIMC_2_MAS,
+	MSM8937_SNOC_BIMC_1_MAS,
+	MSM8937_MASTER_TCU_0,
+	MSM8937_SLAVE_EBI_CH0,
+	MSM8937_BIMC_SNOC_SLV,
+	MSM8937_MASTER_SPDM,
+	MSM8937_MASTER_BLSP_1,
+	MSM8937_MASTER_BLSP_2,
+	MSM8937_MASTER_USB_HS1,
+	MSM8937_MASTER_XM_USB_HS1,
+	MSM8937_MASTER_CRYPTO_CORE0,
+	MSM8937_MASTER_SDCC_1,
+	MSM8937_MASTER_SDCC_2,
+	MSM8937_SNOC_PNOC_MAS,
+	MSM8937_PNOC_M_0,
+	MSM8937_PNOC_M_1,
+	MSM8937_PNOC_INT_0,
+	MSM8937_PNOC_INT_1,
+	MSM8937_PNOC_INT_2,
+	MSM8937_PNOC_INT_3,
+	MSM8937_PNOC_SLV_0,
+	MSM8937_PNOC_SLV_1,
+	MSM8937_PNOC_SLV_2,
+	MSM8937_PNOC_SLV_3,
+	MSM8937_PNOC_SLV_4,
+	MSM8937_PNOC_SLV_6,
+	MSM8937_PNOC_SLV_7,
+	MSM8937_PNOC_SLV_8,
+	MSM8937_SLAVE_SPDM_WRAPPER,
+	MSM8937_SLAVE_PDM,
+	MSM8937_SLAVE_TCSR,
+	MSM8937_SLAVE_SNOC_CFG,
+	MSM8937_SLAVE_TLMM,
+	MSM8937_SLAVE_USB_HS1,
+	MSM8937_SLAVE_MESSAGE_RAM,
+	MSM8937_SLAVE_BLSP_1,
+	MSM8937_SLAVE_BLSP_2,
+	MSM8937_SLAVE_PRNG,
+	MSM8937_SLAVE_CAMERA_CFG,
+	MSM8937_SLAVE_DISPLAY_CFG,
+	MSM8937_SLAVE_VENUS_CFG,
+	MSM8937_SLAVE_GRAPHICS_3D_CFG,
+	MSM8937_SLAVE_SDCC_1,
+	MSM8937_SLAVE_SDCC_2,
+	MSM8937_SLAVE_CRYPTO_0_CFG,
+	MSM8937_SLAVE_PMIC_ARB,
+	MSM8937_SLAVE_TCU,
+	MSM8937_PNOC_SNOC_SLV,
+	MSM8937_MASTER_QDSS_BAM,
+	MSM8937_BIMC_SNOC_MAS,
+	MSM8937_PNOC_SNOC_MAS,
+	MSM8937_MASTER_QDSS_ETR,
+	MSM8937_SNOC_QDSS_INT,
+	MSM8937_SNOC_INT_0,
+	MSM8937_SNOC_INT_1,
+	MSM8937_SNOC_INT_2,
+	MSM8937_SLAVE_APPSS,
+	MSM8937_SLAVE_WCSS,
+	MSM8937_SNOC_BIMC_1_SLV,
+	MSM8937_SLAVE_OCIMEM,
+	MSM8937_SNOC_PNOC_SLV,
+	MSM8937_SLAVE_QDSS_STM,
+	MSM8937_SLAVE_OCMEM_64,
+	MSM8937_SLAVE_LPASS,
+	MSM8937_MASTER_JPEG,
+	MSM8937_MASTER_MDP_PORT0,
+	MSM8937_MASTER_VIDEO_P0,
+	MSM8937_MASTER_VFE,
+	MSM8937_MASTER_VFE1,
+	MSM8937_MASTER_CPP,
+	MSM8937_SNOC_BIMC_0_SLV,
+	MSM8937_SNOC_BIMC_2_SLV,
+	MSM8937_SLAVE_CATS_128,
+};
+
+static const struct clk_bulk_data msm8937_bus_clocks[] = {
+	{ .id = "bus" },
+	{ .id = "bus_a" },
+};
+
+DEFINE_QNODE(mas_apps_proc, MSM8937_MASTER_AMPSS_M0, 8, -1, -1, MSM8937_SLAVE_EBI_CH0, MSM8937_BIMC_SNOC_SLV);
+DEFINE_QNODE(mas_oxili, MSM8937_MASTER_GRAPHICS_3D, 8, -1, -1, MSM8937_SLAVE_EBI_CH0, MSM8937_BIMC_SNOC_SLV);
+DEFINE_QNODE(mas_snoc_bimc_0, MSM8937_SNOC_BIMC_0_MAS, 8, -1, -1, MSM8937_SLAVE_EBI_CH0, MSM8937_BIMC_SNOC_SLV);
+DEFINE_QNODE(mas_snoc_bimc_2, MSM8937_SNOC_BIMC_2_MAS, 8, -1, -1, MSM8937_SLAVE_EBI_CH0, MSM8937_BIMC_SNOC_SLV);
+DEFINE_QNODE(mas_snoc_bimc_1, MSM8937_SNOC_BIMC_1_MAS, 8, 76, -1, MSM8937_SLAVE_EBI_CH0);
+DEFINE_QNODE(mas_tcu_0, MSM8937_MASTER_TCU_0, 8, -1, -1, MSM8937_SLAVE_EBI_CH0, MSM8937_BIMC_SNOC_SLV);
+DEFINE_QNODE(slv_ebi, MSM8937_SLAVE_EBI_CH0, 8, -1, 0, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_bimc_snoc, MSM8937_BIMC_SNOC_SLV, 8, -1, 2, MSM8937_BIMC_SNOC_MAS);
+
+static struct qcom_icc_node *msm8937_bimc_nodes[] = {
+	[MAS_APPS_PROC] = &mas_apps_proc,
+	[MAS_OXILI] = &mas_oxili,
+	[MAS_SNOC_BIMC_0] = &mas_snoc_bimc_0,
+	[MAS_SNOC_BIMC_2] = &mas_snoc_bimc_2,
+	[MAS_SNOC_BIMC_1] = &mas_snoc_bimc_1,
+	[MAS_TCU_0] = &mas_tcu_0,
+	[SLV_EBI] = &slv_ebi,
+	[SLV_BIMC_SNOC] = &slv_bimc_snoc,
+};
+
+static struct qcom_icc_desc msm8937_bimc = {
+	.nodes = msm8937_bimc_nodes,
+	.num_nodes = ARRAY_SIZE(msm8937_bimc_nodes),
+};
+
+DEFINE_QNODE(mas_spdm, MSM8937_MASTER_SPDM, 4, -1, -1, MSM8937_PNOC_M_0);
+DEFINE_QNODE(mas_blsp_1, MSM8937_MASTER_BLSP_1, 4, 41, -1, MSM8937_PNOC_M_1);
+DEFINE_QNODE(mas_blsp_2, MSM8937_MASTER_BLSP_2, 4, 39, -1, MSM8937_PNOC_M_1);
+DEFINE_QNODE(mas_usb_hs1, MSM8937_MASTER_USB_HS1, 4, -1, -1, MSM8937_PNOC_INT_0);
+DEFINE_QNODE(mas_xi_usb_hs1, MSM8937_MASTER_XM_USB_HS1, 8, -1, -1, MSM8937_PNOC_INT_0);
+DEFINE_QNODE(mas_crypto, MSM8937_MASTER_CRYPTO_CORE0, 8, -1, -1, MSM8937_PNOC_INT_0);
+DEFINE_QNODE(mas_sdcc_1, MSM8937_MASTER_SDCC_1, 8, 33, -1, MSM8937_PNOC_INT_0);
+DEFINE_QNODE(mas_sdcc_2, MSM8937_MASTER_SDCC_2, 8, 35, -1, MSM8937_PNOC_INT_0);
+DEFINE_QNODE(mas_snoc_pcnoc, MSM8937_SNOC_PNOC_MAS, 8, 77, -1, MSM8937_PNOC_SLV_7, MSM8937_PNOC_INT_2, MSM8937_PNOC_INT_3);
+DEFINE_QNODE(pcnoc_m_0, MSM8937_PNOC_M_0, 4, -1, -1, MSM8937_PNOC_INT_0);
+DEFINE_QNODE(pcnoc_m_1, MSM8937_PNOC_M_1, 4, 88, 117, MSM8937_PNOC_INT_0);
+DEFINE_QNODE(pcnoc_int_0, MSM8937_PNOC_INT_0, 8, 85, 114, MSM8937_PNOC_SNOC_SLV, MSM8937_PNOC_SLV_7, MSM8937_PNOC_INT_3, MSM8937_PNOC_INT_2); //
+DEFINE_QNODE(pcnoc_int_1, MSM8937_PNOC_INT_1, 8, 86, 115, MSM8937_PNOC_SNOC_SLV, MSM8937_PNOC_SLV_7, MSM8937_PNOC_INT_3, MSM8937_PNOC_INT_2);
+DEFINE_QNODE(pcnoc_int_2, MSM8937_PNOC_INT_2, 8, 124, 184, MSM8937_PNOC_SLV_2, MSM8937_PNOC_SLV_3, MSM8937_PNOC_SLV_6, MSM8937_PNOC_SLV_8);
+DEFINE_QNODE(pcnoc_int_3, MSM8937_PNOC_INT_3, 8, 125, 185, MSM8937_PNOC_SLV_1, MSM8937_PNOC_SLV_0, MSM8937_PNOC_SLV_4, MSM8937_SLAVE_GRAPHICS_3D_CFG, MSM8937_SLAVE_TCU);
+DEFINE_QNODE(pcnoc_s_0, MSM8937_PNOC_SLV_0, 4, 89, 118, MSM8937_SLAVE_SPDM_WRAPPER, MSM8937_SLAVE_PDM, MSM8937_SLAVE_PRNG, MSM8937_SLAVE_SDCC_2);
+DEFINE_QNODE(pcnoc_s_1, MSM8937_PNOC_SLV_1, 4, 90, 119, MSM8937_SLAVE_TCSR);
+DEFINE_QNODE(pcnoc_s_2, MSM8937_PNOC_SLV_2, 4, 91, 120, MSM8937_SLAVE_SNOC_CFG);
+DEFINE_QNODE(pcnoc_s_3, MSM8937_PNOC_SLV_3, 4, 92, 121, MSM8937_SLAVE_MESSAGE_RAM);
+DEFINE_QNODE(pcnoc_s_4, MSM8937_PNOC_SLV_4, 4, -1, -1, MSM8937_SLAVE_CAMERA_CFG, MSM8937_SLAVE_DISPLAY_CFG, MSM8937_SLAVE_VENUS_CFG);
+DEFINE_QNODE(pcnoc_s_6, MSM8937_PNOC_SLV_6, 4, 94, 123, MSM8937_SLAVE_TLMM, MSM8937_SLAVE_BLSP_1, MSM8937_SLAVE_BLSP_2);
+DEFINE_QNODE(pcnoc_s_7, MSM8937_PNOC_SLV_7, 4, 95, 124, MSM8937_SLAVE_SDCC_1, MSM8937_SLAVE_PMIC_ARB);
+DEFINE_QNODE(pcnoc_s_8, MSM8937_PNOC_SLV_8, 4, -1, -1, MSM8937_SLAVE_USB_HS1, MSM8937_SLAVE_CRYPTO_0_CFG);
+DEFINE_QNODE(slv_spdm, MSM8937_SLAVE_SPDM_WRAPPER, 4, -1, -1, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_pdm, MSM8937_SLAVE_PDM, 4, -1, 41, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_tcsr, MSM8937_SLAVE_TCSR, 4, -1, 50, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_snoc_cfg, MSM8937_SLAVE_SNOC_CFG, 4, -1, 70, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_tlmm, MSM8937_SLAVE_TLMM, 4, -1, 51, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_message_ram, MSM8937_SLAVE_MESSAGE_RAM, 4, -1, 55, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_blsp_1, MSM8937_SLAVE_BLSP_1, 4, -1, 39, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_blsp_2, MSM8937_SLAVE_BLSP_2, 4, -1, 37, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_prng, MSM8937_SLAVE_PRNG, 4, -1, 44, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_camera_ss_cfg, MSM8937_SLAVE_CAMERA_CFG, 4, -1, -1, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_disp_ss_cfg, MSM8937_SLAVE_DISPLAY_CFG, 4, -1, -1, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_venus_cfg, MSM8937_SLAVE_VENUS_CFG, 4, -1, -1, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_gpu_cfg, MSM8937_SLAVE_GRAPHICS_3D_CFG, 8, -1, -1, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_sdcc_1, MSM8937_SLAVE_SDCC_1, 4, -1, 31, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_sdcc_2, MSM8937_SLAVE_SDCC_2, 4, -1, 33, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_crypto_0_cfg, MSM8937_SLAVE_CRYPTO_0_CFG, 4, -1, -1, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_pmic_arb, MSM8937_SLAVE_PMIC_ARB, 4, -1, 59, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_usb_hs, MSM8937_SLAVE_USB_HS1, 4, -1, -1, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_tcu, MSM8937_SLAVE_TCU, 8, -1, -1, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_pcnoc_snoc, MSM8937_PNOC_SNOC_SLV, 8, -1, 45, MSM8937_PNOC_SNOC_MAS);
+
+static struct qcom_icc_node *msm8937_pcnoc_nodes[] = {
+	[MAS_SPDM] = &mas_spdm,
+	[MAS_BLSP_1] = &mas_blsp_1,
+	[MAS_BLSP_2] = &mas_blsp_2,
+	[MAS_USB_HS1] = &mas_usb_hs1,
+	[MAS_XI_USB_HX1] = &mas_xi_usb_hs1,
+	[MAS_CRYPTO] = &mas_crypto,
+	[MAS_SDCC_1] = &mas_sdcc_1,
+	[MAS_SDCC_2] = &mas_sdcc_2,
+	[MAS_SNOC_PCNOC] = &mas_snoc_pcnoc,
+	[PCNOC_M_0] = &pcnoc_m_0,
+	[PCNOC_M_1] = &pcnoc_m_1,
+	[PCNOC_INT_0] = &pcnoc_int_0,
+	[PCNOC_INT_1] = &pcnoc_int_1,
+	[PCNOC_INT_2] = &pcnoc_int_2,
+	[PCNOC_INT_3] = &pcnoc_int_3,
+	[PCNOC_S_0] = &pcnoc_s_0,
+	[PCNOC_S_1] = &pcnoc_s_1,
+	[PCNOC_S_2] = &pcnoc_s_2,
+	[PCNOC_S_3] = &pcnoc_s_3,
+	[PCNOC_S_4] = &pcnoc_s_4,
+	[PCNOC_S_6] = &pcnoc_s_6,
+	[PCNOC_S_7] = &pcnoc_s_7,
+	[PCNOC_S_8] = &pcnoc_s_8,
+	[SLV_SPDM] = &slv_spdm,
+	[SLV_PDM] = &slv_pdm,
+	[SLV_TCSR] = &slv_tcsr,
+	[SLV_SNOC_CFG] = &slv_snoc_cfg,
+	[SLV_TLMM] = &slv_tlmm,
+	[SLV_MESSAGE_RAM] = &slv_message_ram,
+	[SLV_BLSP_1] = &slv_blsp_1,
+	[SLV_BLSP_2] = &slv_blsp_2,
+	[SLV_PRNG] = &slv_prng,
+	[SLV_CAMERA_SS_CFG] = &slv_camera_ss_cfg,
+	[SLV_DISP_SS_CFG] = &slv_disp_ss_cfg,
+	[SLV_VENUS_CFG] = &slv_venus_cfg,
+	[SLV_GPU_CFG] = &slv_gpu_cfg,
+	[SLV_SDCC_1] = &slv_sdcc_1,
+	[SLV_SDCC_2] = &slv_sdcc_2,
+	[SLV_CRYPTO_0_CFG] = &slv_crypto_0_cfg,
+	[SLV_PMIC_ARB] = &slv_pmic_arb,
+	[SLV_USB_HS] = &slv_usb_hs,
+	[SLV_TCU] = &slv_tcu,
+	[SLV_PCNOC_SNOC] = &slv_pcnoc_snoc,
+};
+
+static struct qcom_icc_desc msm8937_pcnoc = {
+	.nodes = msm8937_pcnoc_nodes,
+	.num_nodes = ARRAY_SIZE(msm8937_pcnoc_nodes),
+};
+
+DEFINE_QNODE(mas_qdss_bam, MSM8937_MASTER_QDSS_BAM, 4, -1, -1, MSM8937_SNOC_QDSS_INT);
+DEFINE_QNODE(mas_bimc_snoc, MSM8937_BIMC_SNOC_MAS, 8, 21, -1, MSM8937_SNOC_INT_0, MSM8937_SNOC_INT_1, MSM8937_SNOC_INT_2);
+DEFINE_QNODE(mas_pcnoc_snoc, MSM8937_PNOC_SNOC_MAS, 8, 29, -1, MSM8937_SNOC_INT_0, MSM8937_SNOC_INT_1, MSM8937_SNOC_BIMC_1_SLV);
+DEFINE_QNODE(mas_qdss_etr, MSM8937_MASTER_QDSS_ETR, 8, -1, -1, MSM8937_SNOC_QDSS_INT);
+DEFINE_QNODE(qdss_int, MSM8937_SNOC_QDSS_INT, 8, -1, -1, MSM8937_SNOC_INT_1, MSM8937_SNOC_BIMC_1_SLV);
+DEFINE_QNODE(snoc_int_0, MSM8937_SNOC_INT_0, 8, -1, -1, MSM8937_SLAVE_LPASS, MSM8937_SLAVE_WCSS, MSM8937_SLAVE_APPSS);
+DEFINE_QNODE(snoc_int_1, MSM8937_SNOC_INT_1, 8, 100, 131, MSM8937_SLAVE_QDSS_STM, MSM8937_SLAVE_OCIMEM, MSM8937_SNOC_PNOC_SLV);
+DEFINE_QNODE(snoc_int_2, MSM8937_SNOC_INT_2, 8, -1, -1, MSM8937_SLAVE_CATS_128, MSM8937_SLAVE_OCMEM_64);
+DEFINE_QNODE(slv_kpss_ahb, MSM8937_SLAVE_APPSS, 4, -1, -1, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_wcss, MSM8937_SLAVE_WCSS, 4, -1, -1, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_snoc_bimc_1, MSM8937_SNOC_BIMC_1_SLV, 8, -1, 104, MSM8937_SNOC_BIMC_1_MAS);
+DEFINE_QNODE(slv_imem, MSM8937_SLAVE_OCIMEM, 8, -1, 26, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_snoc_pcnoc, MSM8937_SNOC_PNOC_SLV, 8, -1, 28, MSM8937_SNOC_PNOC_MAS);
+DEFINE_QNODE(slv_qdss_stm, MSM8937_SLAVE_QDSS_STM, 4, -1, 30, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_cats_1, MSM8937_SLAVE_OCMEM_64, 8, -1, -1, MSM8937_NODE_NONE);
+DEFINE_QNODE(slv_lpass, MSM8937_SLAVE_LPASS, 8, -1, -1, MSM8937_NODE_NONE);
+
+static struct qcom_icc_node *msm8937_snoc_nodes[] = {
+	[MAS_QDSS_BAM] = &mas_qdss_bam,
+	[MAS_BIMC_SNOC] = &mas_bimc_snoc,
+	[MAS_PCNOC_SNOC] = &mas_pcnoc_snoc,
+	[MAS_QDSS_ETR] = &mas_qdss_etr,
+	[QDSS_INT] = &qdss_int,
+	[SNOC_INT_0] = &snoc_int_0,
+	[SNOC_INT_1] = &snoc_int_1,
+	[SNOC_INT_2] = &snoc_int_2,
+	[SLV_KPSS_AHB] = &slv_kpss_ahb,
+	[SLV_WCSS] = &slv_wcss,
+	[SLV_SNOC_BIMC_1] = &slv_snoc_bimc_1,
+	[SLV_IMEM] = &slv_imem,
+	[SLV_SNOC_PCNOC] = &slv_snoc_pcnoc,
+	[SLV_QDSS_STM] = &slv_qdss_stm,
+	[SLV_CATS_1] = &slv_cats_1,
+	[SLV_LPASS] = &slv_lpass,
+};
+
+static struct qcom_icc_desc msm8937_snoc = {
+	.nodes = msm8937_snoc_nodes,
+	.num_nodes = ARRAY_SIZE(msm8937_snoc_nodes),
+};
+
+DEFINE_QNODE(mas_jpeg, MSM8937_MASTER_JPEG, 16, -1, -1, MSM8937_SNOC_BIMC_2_SLV);
+DEFINE_QNODE(mas_mdp, MSM8937_MASTER_MDP_PORT0, 16, -1, -1, MSM8937_SNOC_BIMC_0_SLV);
+DEFINE_QNODE(mas_venus, MSM8937_MASTER_VIDEO_P0, 16, -1, -1, MSM8937_SNOC_BIMC_2_SLV);
+DEFINE_QNODE(mas_vfe0, MSM8937_MASTER_VFE, 16, -1, -1, MSM8937_SNOC_BIMC_0_SLV);
+DEFINE_QNODE(mas_vfe1, MSM8937_MASTER_VFE1, 16, -1, -1, MSM8937_SNOC_BIMC_0_SLV);
+DEFINE_QNODE(mas_cpp, MSM8937_MASTER_CPP, 16, -1, -1, MSM8937_SNOC_BIMC_2_SLV);
+DEFINE_QNODE(slv_snoc_bimc_0, MSM8937_SNOC_BIMC_0_SLV, 16, -1, -1, MSM8937_SNOC_BIMC_0_MAS);
+DEFINE_QNODE(slv_snoc_bimc_2, MSM8937_SNOC_BIMC_2_SLV, 16, -1, -1, MSM8937_SNOC_BIMC_2_MAS);
+DEFINE_QNODE(slv_cats_0, MSM8937_SLAVE_CATS_128, 16, -1, -1, MSM8937_NODE_NONE);
+
+static struct qcom_icc_node *msm8937_sysmmnoc_nodes[] = {
+	[MAS_JPEG] = &mas_jpeg,
+	[MAS_MDP] = &mas_mdp,
+	[MAS_VENUS] = &mas_venus,
+	[MAS_VFE0] = &mas_vfe0,
+	[MAS_VFE1] = &mas_vfe1,
+	[MAS_CPP] = &mas_cpp,
+	[SLV_SNOC_BIMC_0] = &slv_snoc_bimc_0,
+	[SLV_SNOC_BIMC_2] = &slv_snoc_bimc_2,
+	[SLV_CATS_0] = &slv_cats_0,
+};
+
+static struct qcom_icc_desc msm8937_sysmmnoc = {
+	.nodes = msm8937_sysmmnoc_nodes,
+	.num_nodes = ARRAY_SIZE(msm8937_sysmmnoc_nodes),
+};
+
+static int msm8937_qnoc_probe(struct platform_device *pdev)
+{
+	return qnoc_probe(pdev, sizeof(msm8937_bus_clocks),
+			  ARRAY_SIZE(msm8937_bus_clocks), msm8937_bus_clocks);
+}
+
+static const struct of_device_id msm8937_noc_of_match[] = {
+	{ .compatible = "qcom,msm8937-bimc", .data = &msm8937_bimc },
+	{ .compatible = "qcom,msm8937-pcnoc", .data = &msm8937_pcnoc },
+	{ .compatible = "qcom,msm8937-snoc", .data = &msm8937_snoc },
+	{ .compatible = "qcom,msm8937-sysmmnoc", .data = &msm8937_sysmmnoc },
+	{ }
+};
+MODULE_DEVICE_TABLE(of, msm8937_noc_of_match);
+
+static struct platform_driver msm8937_noc_driver = {
+	.probe = msm8937_qnoc_probe,
+	.remove = qnoc_remove,
+	.driver = {
+		.name = "qnoc-msm8937",
+		.of_match_table = msm8937_noc_of_match,
+		.sync_state = icc_sync_state,
+	},
+};
+module_platform_driver(msm8937_noc_driver);
+MODULE_DESCRIPTION("Qualcomm MSM8937 NoC driver");
+MODULE_LICENSE("GPL v2");
