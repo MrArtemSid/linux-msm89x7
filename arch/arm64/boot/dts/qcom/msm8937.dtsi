@@ -636,7 +636,7 @@
 
 		a53pll_c1: clock-controller@b016000 {
 			compatible = "qcom,msm8939-a53pll";
-			reg = <0xb016000 0x40>;
+			reg = <0xb016000 0x34>;
 			#clock-cells = <0>;
 			clocks = <&xo_board>;
 			clock-names = "xo";
@@ -645,7 +645,7 @@
 
 		apcs_c1: mailbox@b011050 {
 			compatible = "qcom,msm8916-apcs-kpss-global", "syscon";
-			reg = <0x0b011050 0x1000>;
+			reg = <0xb011050 0x1000>;
 			#mbox-cells = <1>;
 			clocks = <&a53pll_c1>, <&gcc GPLL0_EARLY>;
 			clock-names = "pll", "aux";
@@ -655,7 +655,7 @@
 
 		a53pll_c0: clock-controller@b116000 {
 			compatible = "qcom,msm8939-a53pll";
-			reg = <0xb116000 0x40>;
+			reg = <0xb116000 0x34>;
 			#clock-cells = <0>;
 			clocks = <&xo_board>;
 			clock-names = "xo";
@@ -674,21 +674,23 @@
 
 		a53pll_cci: clock-controller@b1d0050 {
 			compatible = "qcom,msm8939-a53pll";
-			reg = <0xb1d0050 0x40>;
+			reg = <0xb1d6000 0x34>;
 			#clock-cells = <0>;
 			clocks = <&xo_board>;
 			clock-names = "xo";
 			operating-points-v2 = <&a53pllcci_opp_table>;
+			status = "disabled";
 		};
 
 		apcs_cci: mailbox@b1d1050 {
 			compatible = "qcom,msm8916-apcs-kpss-global", "syscon";
 			reg = <0xb1d1050 0x1000>;
 			#mbox-cells = <1>;
-			clocks = <&a53pll_cci>, <&gcc GPLL0_EARLY>;
+			clocks = <&a53pll_c0>, <&gcc GPLL0_EARLY>;
 			clock-names = "pll", "aux";
 			#clock-cells = <0>;
-			clock-output-names = "a53mux_cci";
+			clock-output-names = "a53mux_c0";
+			assigned-clock-rates = <(883200000 * 2 / 5)>;
 		};
 
 		tcsr: syscon@1937000 {

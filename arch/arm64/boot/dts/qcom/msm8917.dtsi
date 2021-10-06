@@ -167,7 +167,7 @@
 		};
 	};
 
-	a53pll_opp_table: a53pllc1-opp-table {
+	a53pll_opp_table: a53pll-opp-table {
 		compatible = "operating-points-v2";
 		opp-729600000 { opp-hz = /bits/ 64 <729600000>; };
 		opp-806400000 { opp-hz = /bits/ 64 <806400000>; };
@@ -492,7 +492,7 @@
 
 		a53pll: clock-controller@b016000 {
 			compatible = "qcom,msm8916-a53pll";
-			reg = <0x0b016000 0x34>;
+			reg = <0xb016000 0x34>;
 			#clock-cells = <0>;
 			clocks = <&xo_board>;
 			clock-names = "xo";
@@ -501,7 +501,7 @@
 
 		apcs: mailbox@b011050 {
 			compatible = "qcom,msm8916-apcs-kpss-global", "syscon";
-			reg = <0x0b011000 0x1000>;
+			reg = <0xb011000 0x1000>;
 			#mbox-cells = <1>;
 			clocks = <&a53pll>, <&gcc GPLL0_EARLY>;
 			clock-names = "pll", "aux";
