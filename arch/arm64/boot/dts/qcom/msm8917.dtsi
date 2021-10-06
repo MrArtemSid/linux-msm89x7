@@ -299,6 +299,9 @@
 					compatible = "qcom,msm8937-rpmpd";
 					#power-domain-cells = <1>;
 					operating-points-v2 = <&rpmpd_opp_table>;
+
+					clocks = <&xo_board>;
+					clock-names = "ref";
 					rpmpd_opp_table: opp-table {
 						compatible = "operating-points-v2";
 
@@ -336,14 +339,6 @@
 
 						rpmpd_opp_turbo: opp9 {
 							opp-level = <384>;
-						};
-
-						rpmpd_opp_turbo_no_cpr: opp10 {
-							opp-level = <416>;
-						};
-
-						rpmpd_opp_turbo_plus: opp11 {
-							opp-level = <512>;
 						};
 					};	
 				};
