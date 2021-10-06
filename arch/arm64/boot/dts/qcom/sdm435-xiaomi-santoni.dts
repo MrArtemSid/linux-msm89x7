@@ -154,33 +154,6 @@
 			function = LED_FUNCTION_INDICATOR;
 			color = <LED_COLOR_ID_BLUE>;
 		};
-		led@3 {
-			reg = <3>;
-			led-max-microamp = <5000>;
-			function = LED_FUNCTION_INDICATOR;
-			color = <LED_COLOR_ID_WHITE>;
-		};
-
-		led@4 {
-			reg = <4>;
-			led-max-microamp = <5000>;
-			function = LED_FUNCTION_INDICATOR;
-			color = <LED_COLOR_ID_YELLOW>;
-		};
-/*
-		led@5 {
-			reg = <5>;
-			led-max-microamp = <5000>;
-			function = LED_FUNCTION_INDICATOR;
-			color = <LED_COLOR_ID_???>; // Cyan
-		};
-*/
-		led@6 {
-			reg = <6>;
-			led-max-microamp = <5000>;
-			function = LED_FUNCTION_INDICATOR;
-			color = <LED_COLOR_ID_VIOLET>;
-		};
 	};
 };
 
