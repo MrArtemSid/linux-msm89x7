@@ -3568,6 +3568,14 @@ static struct gdsc oxili_gx_gdsc = {
 	.flags = CLAMP_IO,
 };
 
+static struct gdsc oxili_gx_gdsc_8917 = {
+	.gdscr = 0x5901c,
+	.pd = {
+		.name = "oxili_gx",
+	},
+	.pwrsts = PWRSTS_OFF_ON,
+};
+
 static struct gdsc oxili_cx_gdsc = {
 	.gdscr = 0x5904c,
 	.pd = {
@@ -3850,6 +3858,12 @@ static void fixup_for_msm8917(struct platform_device *pdev,
 	gcc_msm8937_desc.clks[GCC_MDSS_PCLK1_CLK] = NULL;
 	gcc_msm8937_desc.clks[BYTE1_CLK_SRC] = NULL;
 	gcc_msm8937_desc.clks[PCLK1_CLK_SRC] = NULL;
+
+	/*
+	 * Fixup GDSC for MSM8917.
+	 */
+	gcc_msm8937_desc.gdscs[OXILI_GX_GDSC] = &oxili_gx_gdsc_8917;
+	gcc_msm8937_desc.gdscs[OXILI_CX_GDSC] = NULL;
 }
 
 static const struct of_device_id gcc_msm8937_match_table[] = {
