@@ -704,8 +704,8 @@
 				 <&gcc GCC_BIMC_GPU_CLK>,
 				 <&gcc GCC_GTCU_AHB_CLK>,
 				 <&gcc GCC_GFX_TCU_CLK>,
-				 <&gcc GCC_GFX_TBU_CLK>,
-				 <&rpmcc RPM_SMD_BIMC_GPU_CLK>;
+				 <&gcc GCC_GFX_TBU_CLK>;
+				 //<&rpmcc RPM_SMD_BIMC_GPU_CLK>;
 
 			clock-names = "core", 
 						  "iface", 
@@ -713,8 +713,8 @@
 						  "alt_mem_iface", 
 						  "gtcu_iface",
 						  "gtcu", 
-						  "gtbu", 
-						  "bimc_gpu";
+						  "gtbu";
+						 // "bimc_gpu";
 			power-domains = <&gcc OXILI_GX_GDSC>;
 			operating-points-v2 = <&gpu_opp_table>;
 			#cooling-cells = <2>;
