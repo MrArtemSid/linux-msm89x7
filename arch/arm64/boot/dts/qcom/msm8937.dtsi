@@ -643,9 +643,9 @@
 			operating-points-v2 = <&a53pllc1_opp_table>;
 		};
 
-		apcs_c1: mailbox@b011050 {
+		apcs_c1: mailbox@b011000 {
 			compatible = "qcom,msm8916-apcs-kpss-global", "syscon";
-			reg = <0xb011050 0x1000>;
+			reg = <0xb011000 0x1000>;
 			#mbox-cells = <1>;
 			clocks = <&a53pll_c1>, <&gcc GPLL0_EARLY>;
 			clock-names = "pll", "aux";
@@ -662,9 +662,9 @@
 			operating-points-v2 = <&a53pllc0_opp_table>;
 		};
 
-		apcs_c0: mailbox@b111050 {
+		apcs_c0: mailbox@b111000 {
 			compatible = "qcom,msm8916-apcs-kpss-global", "syscon";
-			reg = <0xb111050 0x1000>;
+			reg = <0xb111000 0x1000>;
 			#mbox-cells = <1>;
 			clocks = <&a53pll_c0>, <&gcc GPLL0_EARLY>;
 			clock-names = "pll", "aux";
@@ -682,9 +682,9 @@
 			status = "disabled";
 		};
 
-		apcs_cci: mailbox@b1d1050 {
+		apcs_cci: mailbox@b1d1000 {
 			compatible = "qcom,msm8916-apcs-kpss-global", "syscon";
-			reg = <0xb1d1050 0x1000>;
+			reg = <0xb1d1000 0x1000>;
 			#mbox-cells = <1>;
 			clocks = <&a53pll_c0>, <&gcc GPLL0_EARLY>;
 			clock-names = "pll", "aux";
