@@ -991,21 +991,27 @@
 				compatible  ="operating-points-v2";
 				opp-450000000 {
 					opp-hz = /bits/ 64 <450000000>;
+					opp-supported-hw = <0xFF>;
 				};
 				opp-400000000 {
 					opp-hz = /bits/ 64 <400000000>;
+					opp-supported-hw = <0xFF>;
 				};
 				opp-375000000 {
 					opp-hz = /bits/ 64 <375000000>;
+					opp-supported-hw = <0xFF>;
 				};
 				opp-300000000 {
 					opp-hz = /bits/ 64 <300000000>;
+					opp-supported-hw = <0xFF>;
 				};
 				opp-216000000 {
 					opp-hz = /bits/ 64 <216000000>;
+					opp-supported-hw = <0xFF>;
 				};
 				opp-19200000 {
 					opp-hz = /bits/ 64 <19200000>;
+					opp-supported-hw = <0xFF>;
 				};
 			};
 		};
