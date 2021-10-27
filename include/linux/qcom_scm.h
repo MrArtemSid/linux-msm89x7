@@ -108,6 +108,7 @@ extern bool qcom_scm_hdcp_available(void);
 extern int qcom_scm_hdcp_req(struct qcom_scm_hdcp_req *req, u32 req_cnt,
 			     u32 *resp);
 
+extern int qcom_scm_smmu_set_cb_format(int sec_id, int cbndx, int val);
 extern int qcom_scm_qsmmu500_wait_safe_toggle(bool en);
 #else
 

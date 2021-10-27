@@ -1211,6 +1211,22 @@ int qcom_scm_qsmmu500_wait_safe_toggle(bool en)
 }
 EXPORT_SYMBOL(qcom_scm_qsmmu500_wait_safe_toggle);
 
+int qcom_scm_smmu_set_cb_format(int sec_id, int cbndx, int val)
+{
+	struct qcom_scm_desc desc = {
+		.svc = QCOM_SCM_SVC_SMMU_PROGRAM,
+		.cmd = QCOM_SCM_SMMU_CHANGE_PT_FORMAT,
+		.arginfo = QCOM_SCM_ARGS(3),
+		.args[0] = sec_id,
+		.args[1] = cbndx,
+		.args[2] = val,
+		.owner = ARM_SMCCC_OWNER_SIP,
+	};
+
+	return qcom_scm_call_atomic(__scm->dev, &desc, NULL);
+}
+EXPORT_SYMBOL(qcom_scm_smmu_set_cb_format);
+
 static int qcom_scm_find_dload_address(struct device *dev, u64 *addr)
 {
 	struct device_node *tcsr;
