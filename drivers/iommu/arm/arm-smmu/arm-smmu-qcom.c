@@ -189,7 +189,7 @@ static bool qcom_adreno_can_do_ttbr1(struct arm_smmu_device *smmu)
 
 	if (of_device_is_compatible(np, "qcom,msm8996-smmu-v2")|
 	    of_device_is_compatible(np, "qcom,msm8953-smmu-v2")|
-		of_device_is_compatible(np, "qcom,msm8937-smmu-v2"))
+		of_device_is_compatible(np, "qcom,msm89x7-smmu-v2"))
 		return false;
 
 	return true;
