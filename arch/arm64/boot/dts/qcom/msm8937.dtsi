@@ -704,52 +704,71 @@
 		};
 
 		apps_iommu: iommu@1e00000 {
-			#address-cells = <1>;
-			#size-cells = <1>;
-			#iommu-cells = <1>;
-			compatible = "qcom,msm8937-iommu", "qcom,msm-iommu-v1";
-			ranges  = <0 0x1e20000 0x20000>;
+			compatible = "qcom,msm8953-smmu-500", "arm,mmu32-500";
+			reg = <0x1e00000 0x40000>;
+
 			clocks = <&gcc GCC_SMMU_CFG_CLK>,
 				 <&gcc GCC_APSS_TCU_CLK>;
 			clock-names = "iface", "bus";
+
+			#global-interrupts = <0>;
+			interrupts = <GIC_SPI 253 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 254 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 255 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 53 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 58 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 60 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 94 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 101 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 102 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 104 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 105 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 106 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 109 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 110 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 111 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 113 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 114 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 115 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 116 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 117 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 118 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 119 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>;
+
 			qcom,iommu-secure-id = <17>;
 
-			iommu-ctx@14000 { // vfe
-				compatible = "qcom,msm-iommu-v1-ns";
-				reg = <0x14000 0x1000>;
-				interrupts = <GIC_SPI 111 IRQ_TYPE_LEVEL_HIGH>;
-			};
-
-			iommu-ctx@15000 { // mdp_0
-				compatible = "qcom,msm-iommu-v1-ns";
-				reg = <0x15000 0x1000>;
-				interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>;
-			};
-
-			iommu-ctx@16000 { // venus_ns
-				compatible = "qcom,msm-iommu-v1-ns";
-				reg = <0x16000 0x1000>;
-				interrupts = <GIC_SPI 113 IRQ_TYPE_LEVEL_HIGH>;
-			};
+			#iommu-cells = <2>;
 		};
 
-		gpu_iommu: iommu@1f08000 {
-			#address-cells = <1>;
-			#size-cells = <1>;
-			#iommu-cells = <1>;
-			compatible = "qcom,msm8937-gpu-iommu", "qcom,msm-iommu-v1";
-			ranges = <0 0x01c48000 0x8000>;
+		gpu_iommu: iommu@1c40000 {
+			compatible = "qcom,msm8953-smmu-v2", "qcom,adreno-smmu", "qcom,smmu-v2";
+			reg = <0x01c40000 0x10000>;
+
 			clocks = <&gcc GCC_OXILI_AHB_CLK>,
-			    	 <&gcc GCC_BIMC_GFX_CLK>;
+				 <&gcc GCC_BIMC_GFX_CLK>;
 			clock-names = "iface", "bus";
-			qcom,iommu-secure-id = <18>;
+
+			#global-interrupts = <0>;
+			interrupts = <GIC_SPI 225 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 232 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 233 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 234 IRQ_TYPE_LEVEL_HIGH>;
+
 			power-domains = <&gcc OXILI_CX_GDSC>;
 
-			iommu-ctx@0000 { // gfx3d_user
-				compatible = "qcom,msm-iommu-v1-ns";
-				reg = <0x0000 0x1000>;
-				interrupts = <GIC_SPI 225 IRQ_TYPE_LEVEL_HIGH>;
-			};
+			//qcom,iommu-secure-id = <18>;
+
+			#iommu-cells = <1>;
 		};
 		
 		mdss: mdss@1a00000 {
@@ -933,8 +952,7 @@
 					      "core",
 					      "vsync";
 
-				iommus = <&apps_iommu 0x15>;
-				iommu-defer-attach;
+				iommus = <&apps_iommu 0x2800 0>;
 
 				ports {
 					#address-cells = <1>;
