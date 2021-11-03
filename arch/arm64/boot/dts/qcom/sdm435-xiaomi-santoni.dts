@@ -218,7 +218,7 @@
 		vsp-supply = <&lab_vreg>;
 		vsn-supply = <&ibb_vreg>;
 		
-		reset-gpios = <&msmgpio 60 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&msmgpio 60 GPIO_ACTIVE_LOW>;
 		
 		pinctrl-names = "default", "sleep";
 		pinctrl-0 = <&mdss_dsi_active &mdss_te_active>;
