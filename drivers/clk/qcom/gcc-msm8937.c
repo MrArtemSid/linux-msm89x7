@@ -1114,7 +1114,7 @@ static struct clk_rcg2 byte0_clk_src = {
 		.name = "byte0_clk_src",
 		.parent_data = gcc_parent_data_8,
 		.num_parents = 4,
-		.flags = CLK_SET_RATE_PARENT,
+		.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 		.ops = &clk_byte2_ops,
 	},
 };
@@ -1128,7 +1128,7 @@ static struct clk_rcg2 byte1_clk_src = {
 		.name = "byte1_clk_src",
 		.parent_data = gcc_parent_data_9,
 		.num_parents = 4,
-		.flags = CLK_SET_RATE_PARENT,
+		.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 		.ops = &clk_byte2_ops,
 	},
 };
@@ -1484,7 +1484,7 @@ static struct clk_rcg2 pclk0_clk_src = {
 		.name = "pclk0_clk_src",
 		.parent_data = gcc_parent_data_14,
 		.num_parents = 4,
-		.flags = CLK_SET_RATE_PARENT,
+		.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 		.ops = &clk_pixel_ops,
 	},
 };
@@ -1498,7 +1498,7 @@ static struct clk_rcg2 pclk1_clk_src = {
 		.name = "pclk1_clk_src",
 		.parent_data = gcc_parent_data_15,
 		.num_parents = 4,
-		.flags = CLK_SET_RATE_PARENT,
+		.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 		.ops = &clk_pixel_ops,
 	},
 };
