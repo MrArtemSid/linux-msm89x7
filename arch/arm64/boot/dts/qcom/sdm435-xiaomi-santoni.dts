@@ -17,20 +17,7 @@
 		panel = &panel;
 	};
 
-	chosen {
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
-		framebuffer0: framebuffer@90001000 {
-			compatible = "simple-framebuffer";
-			reg = <0 (0x90001000) 0 (720*1280*3)>;
-			width = <720>;
-			height = <1280>;
-			stride = <(720 * 3)>;
-			format = "r8g8b8";
-			status= "okay";
-		};
-	};
+	chosen {};
 
 	reserved-memory {
 		/delete-node/other_ext_region@85b00000;
