@@ -298,28 +298,28 @@ static const struct clk_parent_data gcc_parent_data_7[] = {
 static const struct parent_map gcc_parent_map_8[] = {
 	{ P_XO, 0 },
 	{ P_DSI0_PHYPLL_BYTE, 1 },
-	{ P_GPLL0_DIV2, 2 },
+	{ P_GPLL0, 2 },
 	{ P_DSI1_PHYPLL_BYTE, 3 },
 };
 
 static const struct clk_parent_data gcc_parent_data_8[] = {
 	{ .fw_name = "xo", .name = "xo" },
 	{ .fw_name = "dsi0pllbyte", .name = "dsi0pllbyte" },
-	{ .hw = &gpll0_early_div.hw },
+	{ .hw = &gpll0.clkr.hw },
 	{ .fw_name = "dsi1pllbyte", .name = "dsi1pllbyte" },
 };
 
 static const struct parent_map gcc_parent_map_9[] = {
 	{ P_XO, 0 },
 	{ P_DSI1_PHYPLL_BYTE, 1 },
-	{ P_GPLL0_DIV2, 2 },
+	{ P_GPLL0, 2 },
 	{ P_DSI0_PHYPLL_BYTE, 3 },
 };
 
 static const struct clk_parent_data gcc_parent_data_9[] = {
 	{ .fw_name = "xo", .name = "xo" },
 	{ .fw_name = "dsi1pllbyte", .name = "dsi1pllbyte" },
-	{ .hw = &gpll0_early_div.hw },
+	{ .hw = &gpll0.clkr.hw },
 	{ .fw_name = "dsi0pllbyte", .name = "dsi0pllbyte" },
 };
 
@@ -391,28 +391,28 @@ static const struct clk_parent_data gcc_parent_data_13[] = {
 static const struct parent_map gcc_parent_map_14[] = {
 	{ P_XO, 0 },
 	{ P_DSI0_PHYPLL, 1 },
-	{ P_GPLL0_DIV2, 2 },
+	{ P_GPLL0, 2 },
 	{ P_DSI1_PHYPLL, 3 },
 };
 
 static const struct clk_parent_data gcc_parent_data_14[] = {
 	{ .fw_name = "xo", .name = "xo" },
 	{ .fw_name = "dsi0pll", .name = "dsi0pll" },
-	{ .hw = &gpll0_early_div.hw },
+	{ .hw = &gpll0.clkr.hw },
 	{ .fw_name = "dsi1pll", .name = "dsi1pll" },
 };
 
 static const struct parent_map gcc_parent_map_15[] = {
 	{ P_XO, 0 },
 	{ P_DSI1_PHYPLL, 1 },
-	{ P_GPLL0_DIV2, 2 },
+	{ P_GPLL0, 2 },
 	{ P_DSI0_PHYPLL, 3 },
 };
 
 static const struct clk_parent_data gcc_parent_data_15[] = {
 	{ .fw_name = "xo", .name = "xo" },
 	{ .fw_name = "dsi1pll", .name = "dsi1pll" },
-	{ .hw = &gpll0_early_div.hw },
+	{ .hw = &gpll0.clkr.hw },
 	{ .fw_name = "dsi0pll", .name = "dsi0pll" },
 };
 
