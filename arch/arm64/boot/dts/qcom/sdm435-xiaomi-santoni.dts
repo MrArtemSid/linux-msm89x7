@@ -152,11 +152,12 @@
 		compatible = "edt,edt-ft5306", "edt,edt-ft5x06";
 		reg = <0x38>;
 		vcc-supply = <&pm8937_l10>;
+		iovcc-supply = <&pm8937_l5>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&ts_int_active &ts_reset_active>;
 		interrupt-parent = <&msmgpio>;
 		interrupts = <65 0x2008>;
-		reset-gpios = <&msmgpio 64 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&msmgpio 64 GPIO_ACTIVE_LOW>;
 		touchscreen-size-x = <720>;
 		touchscreen-size-y = <1280>;
 	};
