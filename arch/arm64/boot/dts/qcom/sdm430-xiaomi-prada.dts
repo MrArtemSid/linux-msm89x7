@@ -1,0 +1,289 @@
+/dts-v1/;
+
+#include "msm8940-pm8937.dtsi"
+#include "pmi8950.dtsi"
+#include <dt-bindings/leds/common.h>
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/atmel-maxtouch.h>
+
+/ {
+	model = "Xiaomi Redmi 4 (prada)";
+	compatible = "xiaomi,prada", "qcom,msm8937";
+
+	qcom,msm-id = <294 0>;
+	qcom,board-id= <8 0>;
+	qcom,pmic-id = <0x10019 0x010011 0x0 0x0>;
+
+	aliases {
+		panel = &panel;
+	};
+
+	chosen {};
+
+	reserved-memory {
+		/delete-node/other_ext_region@85b00000;
+		other_ext_region@84F00000 {
+			no-map;
+			reg = <0x0 0x84F00000 0x0 0x1900000>;
+		};
+		
+		fih_removed_regions@0 {
+			compatible = "removed-dma-pool";
+			no-map;
+			reg = <0x0 0x91400000 0x0 0x200000>;
+			label = "fih_memory_hole";
+		};
+		
+		ramoops@b0000000 {
+			compatible = "ramoops";
+			reg = <0 0xb0000000 0 0x400000>;
+			record-size = <0x200000>;
+			console-size = <0x200000>;
+		};
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpio_key_default>;
+
+		label = "GPIO Button";
+
+		volume-up {
+			label = "Volume Up";
+			gpios = <&msmgpio 91 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_VOLUMEUP>;
+		};
+	};
+};
+
+&blsp_i2c2 {
+	status = "okay";
+	led-controller@45 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		compatible = "awinic,aw2013";
+
+		reg = <0x45>;
+
+		vcc-supply = <&pm8937_l10>;
+
+		led@0 {
+			reg = <0>;
+			led-max-microamp = <5000>;
+			function = LED_FUNCTION_INDICATOR;
+			color = <LED_COLOR_ID_RED>;
+		};
+		led@1 {
+			reg = <1>;
+			led-max-microamp = <5000>;
+			function = LED_FUNCTION_INDICATOR;
+			color = <LED_COLOR_ID_GREEN>;
+		};
+		led@2 {
+			reg = <2>;
+			led-max-microamp = <5000>;
+			function = LED_FUNCTION_INDICATOR;
+			color = <LED_COLOR_ID_BLUE>;
+		};
+	};
+};
+
+&blsp_i2c3 {
+	status = "okay";
+
+	touchscreen@38 {
+		compatible = "edt,edt-ft5306", "edt,edt-ft5x06";
+		reg = <0x38>;
+		vcc-supply = <&pm8937_l10>;
+		iovcc-supply = <&pm8937_l6>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&ts_int_active &ts_reset_active>;
+		interrupt-parent = <&msmgpio>;
+		interrupts = <41 0x0>;
+		reset-gpios = <&msmgpio 40 GPIO_ACTIVE_LOW>;
+		touchscreen-size-x = <720>;
+		touchscreen-size-y = <1280>;
+	};
+	
+	touchscreen@4a {
+		compatible = "atmel,maxtouch";
+		reg = <0x4a>;
+		interrupt-parent = <&msmgpio>;
+		interrupts = <0x41 0x2008>;
+		reset-gpios = <&msmgpio 0x40 GPIO_ACTIVE_LOW>;
+		vdda-supply = <&pm8937_l6>;
+		vdd-supply = <&pm8937_l10>;
+		//atmel,wakeup-method = <ATMEL_MXT_WAKEUP_I2C_SCL>;
+	};
+};
+
+&dsi0 {
+	panel: panel@0 {
+		compatible = "mdss,nt35521s-ctc";
+		reg = <0>;
+		
+		reset-gpios = <&msmgpio 60 GPIO_ACTIVE_LOW>;
+		
+		pinctrl-names = "default";
+		pinctrl-0 = <&mdss_dsi_active>;
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+};
+
+&dsi0_out {
+	data-lanes = <0 1 2 3>;
+	remote-endpoint = <&panel_in>;
+};
+
+&sdhc_1 {
+	status = "okay";
+
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&sdc1_clk_on &sdc1_cmd_on &sdc1_data_on &sdc1_rclk_on>;
+	pinctrl-1 = <&sdc1_clk_off &sdc1_cmd_off &sdc1_data_off &sdc1_rclk_off>;
+};
+
+&sdhc_2 {
+	status = "okay";
+
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&sdc2_clk_on &sdc2_cmd_on &sdc2_data_on &sdc2_cd_on>;
+	pinctrl-1 = <&sdc2_clk_off &sdc2_cmd_off &sdc2_data_off>;
+
+	cd-gpios = <&msmgpio 67 GPIO_ACTIVE_LOW>;
+};
+
+&msmgpio {
+	ts_reset_active: ts-reset-active-pins {
+		pins = "gpio64";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-pull-up;
+	};
+
+	ts_reset_suspend: ts-reset-suspend-pins {
+		pins = "gpio64";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+
+	ts_int_active: ts-int-active-pins {
+		pins = "gpio65";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-pull-up;
+	};
+
+	ts_int_suspend: ts-int-suspend-pins {
+		pins = "gpio65";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
+};
+
+&smd_rpm_regulators {
+	s1 {
+		regulator-min-microvolt = <1000000>;
+		regulator-max-microvolt = <1225000>;
+	};
+	s3 {
+		regulator-min-microvolt = <1300000>;
+		regulator-max-microvolt = <1300000>;
+	};
+	s4 {
+		regulator-min-microvolt = <2050000>;
+		regulator-max-microvolt = <2050000>;
+	};
+	l2 {
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+	};
+	l5 {
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
+	};
+	l6 {
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
+	};
+	l7 {
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+	};
+	l8 {
+		regulator-min-microvolt = <2850000>;
+		regulator-max-microvolt = <2900000>;
+	};
+	l9 {
+		regulator-min-microvolt = <3000000>;
+		regulator-max-microvolt = <3300000>;
+	};
+	l10 {
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <3000000>;
+	};
+	l11 {
+		regulator-min-microvolt = <2950000>;
+		regulator-max-microvolt = <2950000>;
+	};
+	l12 {
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <2950000>;
+	};
+	l13 {
+		regulator-min-microvolt = <3075000>;
+		regulator-max-microvolt = <3075000>;
+	};
+	l14 {
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+	};
+	l15 {
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+	};
+	l16 {
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+	};
+	l17 {
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2900000>;
+	};
+	l19 {
+		regulator-min-microvolt = <1225000>;
+		regulator-max-microvolt = <1350000>;
+	};
+	l20 {
+		regulator-min-microvolt = <1740000>;
+		regulator-max-microvolt = <1740000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+	l21 {
+		regulator-min-microvolt = <1740000>;
+		regulator-max-microvolt = <1740000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+	l22 {
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+	};
+	l23 {
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+	};
+};

@@ -79,6 +79,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= sc7280-herobrine.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sc7280-idp.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sc7280-idp2.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sdm430-xiaomi-land.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm430-xiaomi-prada.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sdm435-xiaomi-santoni.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sdm630-sony-xperia-ganges-kirin.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sdm630-sony-xperia-nile-discovery.dtb
