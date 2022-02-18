@@ -69,3 +69,4 @@ obj-$(CONFIG_DRM_PANEL_VISIONOX_RM69299) += panel-visionox-rm69299.o
 obj-$(CONFIG_DRM_PANEL_WIDECHIPS_WS2401) += panel-widechips-ws2401.o
 obj-$(CONFIG_DRM_PANEL_XINPENG_XPP055C272) += panel-xinpeng-xpp055c272.o
 obj-$(CONFIG_DRM_PANEL_NOVATEK_NT35521S_EBBG) += panel-nt35521s-ebbg.o
+obj-$(CONFIG_DRM_PANEL_JDF_LIANOVATION_ST7703) += panel-dsi-jdf-lianovation-st7703.o

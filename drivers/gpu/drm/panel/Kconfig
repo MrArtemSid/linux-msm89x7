@@ -669,4 +669,12 @@ config DRM_PANEL_NOVATEK_NT35521S_EBBG
 	  NT35521S EBBG controller for 720x1280 LCD panels with MIPI/RGB/SPI
 	  system interfaces.
 
+config DRM_PANEL_JDF_LIANOVATION_ST7703
+	tristate "JDF LIANOVATION ST7703 panel for ASUS X00P"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y if you want to enable support for JDF_LIANOVATION_ST7703 panel on ASUS X00P.
+
 endmenu
