@@ -100,7 +100,7 @@
 
 &dsi0 {
 	panel: panel@0 {
-		compatible = "mdss,x00p";
+		compatible = "dsi,jdf-lianovation-st7703";
 		reg = <0>;
 		
 		reset-gpios = <&msmgpio 60 GPIO_ACTIVE_LOW>;
