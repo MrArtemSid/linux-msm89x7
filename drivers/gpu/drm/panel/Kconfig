@@ -710,4 +710,12 @@ config DRM_PANEL_NOVATEK_NT35521S_EBBG
 	  NT35521S EBBG controller for 720x1280 LCD panels with MIPI/RGB/SPI
 	  system interfaces.
 
+config DRM_PANEL_HX8394F_BOE
+	tristate "HX8394F BOE panel for Xiaomi Redmi 3S/3X/4X"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y if you want to enable support for HX8394F BOE panel on Xiaomi Redmi 3S/3X/4X.
+
 endmenu
