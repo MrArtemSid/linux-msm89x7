@@ -49,6 +49,7 @@ MODULE_DEVICE_TABLE(acpi, bmi160_acpi_match);
 
 #ifdef CONFIG_OF
 static const struct of_device_id bmi160_of_match[] = {
+	{ .compatible = "bosch,bmi120" },
 	{ .compatible = "bosch,bmi160" },
 	{ },
 };
