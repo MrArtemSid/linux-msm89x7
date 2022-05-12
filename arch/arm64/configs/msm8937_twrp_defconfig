@@ -590,9 +590,11 @@ CONFIG_DEBUG_KERNEL=y
 # CONFIG_FTRACE is not set
 # CONFIG_RUNTIME_TESTING_MENU is not set
 CONFIG_MEMTEST=y
-CONFIG_EXTRA_FIRMWARE="qcom/a300_pfp.fw qcom/a300_pm4.fw qcom/a530_pfp.fw qcom/a530_pm4.fw"
+CONFIG_EXTRA_FIRMWARE="qcom/a300_pfp.fw qcom/a300_pm4.fw qcom/a530_pfp.fw qcom/a530_pm4.fw qcom/adsp.mdt qcom/modem.mdt qcom/venus.mdt qcom/wcnss.b00 qcom/wcnss.b01 qcom/wcnss.b02 qcom/wcnss.b04 qcom/wcnss.b06 qcom/wcnss.b09 qcom/wcnss.b10 qcom/wcnss.b11 qcom/wcnss.b12 qcom/wcnss.mdt qcom/mba.mbn"
 CONFIG_EXTRA_FIRMWARE_DIR="firmware"
 CONFIG_SECURITY_NETWORK=y
 CONFIG_SECURITY_SELINUX=y
 CONFIG_SECURITY_SELINUX_BOOTPARAM=y
 CONFIG_SECURITY_SELINUX_DISABLE=y
+CONFIG_BATTERY_QCOM_FG=y
+CONFIG_CHARGER_QCOM_SMBCHG=y
