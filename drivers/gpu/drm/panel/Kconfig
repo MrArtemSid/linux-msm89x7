@@ -733,4 +733,12 @@ config DRM_PANEL_HX8394F_BOE
 	help
 	  Say Y if you want to enable support for HX8394F BOE panel on Xiaomi Redmi 3(S/X).
 
+config DRM_PANEL_TM_OTM1901A
+	tristate "TM OTM1901A panel for Xiaomi Redmi Note 5A Prime"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y if you want to enable support for TM OTM1901A panel on Xiaomi Redmi Note 5A Prime.
+
 endmenu
