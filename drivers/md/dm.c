@@ -410,6 +410,12 @@ static int dm_blk_getgeo(struct gendisk *disk, struct hd_geometry *geo)
 	return dm_get_geometry(md, geo);
 }
 
+static int dm_blk_set_read_only(struct block_device *bdev, bool ro)
+{
+	set_disk_ro(bdev->bd_disk, ro);
+	return 0;
+}
+
 static int dm_prepare_ioctl(struct mapped_device *md, int *srcu_idx,
 			    struct block_device **bdev, unsigned int cmd,
 			    unsigned long arg, bool *forward)
@@ -3785,6 +3791,7 @@ static const struct block_device_operations dm_blk_dops = {
 	.release = dm_blk_close,
 	.ioctl = dm_blk_ioctl,
 	.getgeo = dm_blk_getgeo,
+	.set_read_only = dm_blk_set_read_only,
 	.report_zones = dm_blk_report_zones,
 	.get_unique_id = dm_blk_get_unique_id,
 	.pr_ops = &dm_pr_ops,
