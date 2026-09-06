@@ -613,6 +613,7 @@
 	qcom,gnd-jack-type-normally-open;
 	qcom,mbhc-vthreshold-high = <100 200 450 500 500>;
 	qcom,mbhc-vthreshold-low = <100 200 450 500 500>;
+	qcom,micbias-lvl = <2800>;
 	qcom,micbias1-ext-cap;
 	qcom,micbias2-ext-cap;
 
