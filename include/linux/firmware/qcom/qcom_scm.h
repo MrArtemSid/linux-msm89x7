@@ -167,6 +167,11 @@ int qcom_scm_shm_bridge_create(u64 pfn_and_ns_perm_flags,
 			       u64 ns_vmids, u64 *handle);
 int qcom_scm_shm_bridge_delete(u64 handle);
 
+#define QCOM_SCM_RAW_RETS	3
+
+int qcom_scm_call_raw(u32 owner, u32 svc, u32 cmd, u32 arginfo,
+		      const u64 *args, unsigned int nargs, u64 *res);
+
 #ifdef CONFIG_QCOM_QSEECOM
 
 int qcom_scm_qseecom_app_get_id(const char *app_name, u32 *app_id);

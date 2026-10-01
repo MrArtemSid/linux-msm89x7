@@ -2040,6 +2040,52 @@ int qcom_scm_gpu_init_regs(u32 gpu_req)
 }
 EXPORT_SYMBOL_GPL(qcom_scm_gpu_init_regs);
 
+/**
+ * qcom_scm_call_raw() - Invoke an arbitrary SCM call
+ * @owner:	SMCCC owner of the call
+ * @svc:	Service ID
+ * @cmd:	Command ID
+ * @arginfo:	Argument descriptor, as built by QCOM_SCM_ARGS()
+ * @args:	Arguments, up to MAX_QCOM_SCM_ARGS entries
+ * @nargs:	Number of entries in @args
+ * @res:	Optional array of QCOM_SCM_RAW_RETS words receiving the results
+ *
+ * Intended for downstream-derived clients (e.g. the legacy QSEECOM driver)
+ * which construct their own SCM requests. The results are written to @res
+ * even if the call fails, as such clients inspect them on error too.
+ *
+ * Return: 0 on success, negative errno otherwise.
+ */
+int qcom_scm_call_raw(u32 owner, u32 svc, u32 cmd, u32 arginfo,
+		      const u64 *args, unsigned int nargs, u64 *res)
+{
+	struct qcom_scm_desc desc = {
+		.owner = owner,
+		.svc = svc,
+		.cmd = cmd,
+		.arginfo = arginfo,
+	};
+	struct qcom_scm_res scm_res = {};
+	int ret;
+
+	BUILD_BUG_ON(QCOM_SCM_RAW_RETS != MAX_QCOM_SCM_RETS);
+
+	if (!__scm)
+		return -EPROBE_DEFER;
+	if (nargs > MAX_QCOM_SCM_ARGS)
+		return -EINVAL;
+	if (nargs)
+		memcpy(desc.args, args, nargs * sizeof(*args));
+
+	ret = qcom_scm_call(__scm->dev, &desc, &scm_res);
+
+	if (res)
+		memcpy(res, scm_res.result, sizeof(scm_res.result));
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(qcom_scm_call_raw);
+
 static int qcom_scm_find_dload_address(struct device *dev, u64 *addr)
 {
 	struct device_node *tcsr;
