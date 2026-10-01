@@ -23,6 +23,11 @@
 	regulator-max-microvolt = <2850000>;
 };
 
+/* Unlike riva and rolex, the secure app region is smaller and moved up. */
+&qseecom {
+	reg = <0x0 0x85e00000 0x0 0x500000>;
+};
+
 &sound {
 	model = "xiaomi-tiare";
 

@@ -319,6 +319,15 @@
 	status = "okay";
 };
 
+&qseecom {
+	reg = <0x0 0x84a00000 0x0 0x1900000>;
+	status = "okay";
+};
+
+&qseecom_heap {
+	status = "okay";
+};
+
 &rpm_requests {
 	regulators-0 {
 		compatible = "qcom,rpm-pm8937-regulators";
