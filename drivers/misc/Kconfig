@@ -644,6 +644,23 @@ config MCHP_LAN966X_PCI
 	    - lan966x-miim (MDIO_MSCC_MIIM)
 	    - lan966x-switch (LAN966X_SWITCH)
 
+config QSEECOM
+	bool "QTI Secure Execution Communicator driver"
+	depends on ARM64 && QCOM_SCM=y && DMA_SHARED_BUFFER
+	depends on QCOM_QSEECOM=n
+	help
+	  Provides /dev/qseecom, the communication interface between
+	  userspace and the QTI Secure Execution Environment (QSEE) used by
+	  the downstream Android vendor userspace (libQSEEComAPI.so and its
+	  clients such as qseecomd, keymaster and DRM). It is a port of the
+	  driver from the msm-4.19 kernel and keeps its ioctl ABI.
+
+	  It conflicts with the mainline QCOM_QSEECOM driver, as both drive
+	  the same TrustZone interface.
+
+	  Buffers passed by userspace must be physically contiguous dma-bufs,
+	  e.g. from a CMA dma-buf heap.
+
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"
