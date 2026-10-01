@@ -691,7 +691,12 @@ static int qseecom_scm_call2(uint32_t svc_id, uint32_t tz_cmd_id,
 			qseecom.smcinvoke_support = true;
 			smc_id = TZ_OS_REGISTER_LISTENER_SMCINVOKE_ID;
 			ret = __qseecom_scm_call2_locked(smc_id, &desc);
-			if (ret == -EOPNOTSUPP) {
+			/*
+			 * TZ without smcinvoke rejects the unknown SMC ID with
+			 * a generic error, which the SCM driver turns into
+			 * -EIO, as on msm-4.9; newer ones use -EOPNOTSUPP.
+			 */
+			if (ret == -EOPNOTSUPP || ret == -EIO) {
 				/* smcinvoke is not supported */
 				qseecom.smcinvoke_support = false;
 				smc_id = TZ_OS_REGISTER_LISTENER_ID;
