@@ -312,6 +312,42 @@
 		};
 	};
 
+	/*
+	 * Downstream QSEECOM interface (CONFIG_QSEECOM). The secure app region
+	 * is not accessed by the kernel, only reported to TrustZone, and is
+	 * also reserved as qseecom_mem. Bus scaling is a no-op without an
+	 * interconnects path; the vectors are kept from the downstream DT.
+	 */
+	qseecom: qseecom@85b00000 {
+		compatible = "qcom,qseecom";
+		reg = <0x0 0x85b00000 0x0 0x800000>;
+		reg-names = "secapp-region";
+		qcom,hlos-num-ce-hw-instances = <1>;
+		qcom,hlos-ce-hw-instance = <0>;
+		qcom,qsee-ce-hw-instance = <0>;
+		qcom,disk-encrypt-pipe-pair = <2>;
+		qcom,support-fde;
+		qcom,msm-bus,name = "qseecom-noc";
+		qcom,msm-bus,num-cases = <4>;
+		qcom,msm-bus,num-paths = <1>;
+		qcom,support-bus-scaling;
+		qcom,msm-bus,vectors-KBps =
+			<55 512 0 0>,
+			<55 512 0 0>,
+			<55 512 120000 1200000>,
+			<55 512 393600 3936000>;
+		clocks = <&gcc CRYPTO_CLK_SRC>,
+			 <&gcc GCC_CRYPTO_CLK>,
+			 <&gcc GCC_CRYPTO_AHB_CLK>,
+			 <&gcc GCC_CRYPTO_AXI_CLK>;
+		clock-names = "core_clk_src",
+			      "core_clk",
+			      "iface_clk",
+			      "bus_clk";
+		qcom,ce-opp-freq = <100000000>;
+		status = "disabled";
+	};
+
 	reserved-memory {
 		ranges;
 		#address-cells = <2>;
@@ -320,6 +356,15 @@
 		qseecom_mem: qseecom@85b00000 {
 			reg = <0x0 0x85b00000 0x0 0x800000>;
 			no-map;
+		};
+
+		/* Backs the "qseecom" dma-buf heap used by libQSEEComAPI. */
+		qseecom_heap: qseecom {
+			compatible = "shared-dma-pool";
+			size = <0x0 0x1000000>;
+			alignment = <0x0 0x400000>;
+			reusable;
+			status = "disabled";
 		};
 
 		smem@86300000 {
