@@ -172,7 +172,8 @@
 &blsp1_i2c3 {
 	status = "okay";
 
-	touchscreen@3e {
+	/* Enabled by lk2nd depending on the detected panel */
+	edt_ft5306: touchscreen@3e {
 		compatible = "edt,edt-ft5306";
 		reg = <0x3e>;
 
@@ -186,6 +187,26 @@
 
 		touchscreen-size-x = <720>;
 		touchscreen-size-y = <1280>;
+
+		status = "disabled";
+	};
+
+	imagis_ist3038c: touchscreen@50 {
+		compatible = "imagis,ist3038c";
+		reg = <0x50>;
+
+		interrupts-extended = <&tlmm 65 IRQ_TYPE_EDGE_FALLING>;
+		reset-gpios = <&tlmm 64 GPIO_ACTIVE_LOW>;
+		vdd-supply = <&pm8937_l10>;
+		vddio-supply = <&pm8937_l5>;
+
+		pinctrl-0 = <&tsp_int_rst_default>;
+		pinctrl-names = "default";
+
+		touchscreen-size-x = <720>;
+		touchscreen-size-y = <1280>;
+
+		status = "disabled";
 	};
 };
 
