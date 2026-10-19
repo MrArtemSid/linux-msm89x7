@@ -63,6 +63,15 @@ properties:
   wake-gpios:
     maxItems: 1
 
+  edt,alternate-i2c-addr:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description:
+      I2C address to retry with if the controller does not respond at the
+      address given in reg. Used on boards where the controller address
+      varies between hardware variants.
+    minimum: 0x08
+    maximum: 0x77
+
   wakeup-source: true
 
   vcc-supply: true

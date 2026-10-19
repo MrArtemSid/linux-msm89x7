@@ -1121,6 +1121,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client)
 	unsigned long irq_flags;
 	int error;
 	u32 report_rate;
+	u32 alt_addr;
 
 	dev_dbg(&client->dev, "probing for EDT FT5x06 I2C\n");
 
@@ -1248,6 +1249,14 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client)
 	i2c_set_clientdata(client, tsdata);
 
 	error = edt_ft5x06_ts_identify(client, tsdata);
+	if (error && !device_property_read_u32(&client->dev,
+					       "edt,alternate-i2c-addr", &alt_addr)) {
+		/* Some board variants have the controller at another address */
+		dev_dbg(&client->dev, "no response, trying alternate address 0x%02x\n",
+			alt_addr);
+		client->addr = alt_addr;
+		error = edt_ft5x06_ts_identify(client, tsdata);
+	}
 	if (error) {
 		dev_err(&client->dev, "touchscreen probe failed\n");
 		return error;
