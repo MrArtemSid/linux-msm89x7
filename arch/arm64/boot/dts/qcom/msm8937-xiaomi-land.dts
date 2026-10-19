@@ -173,9 +173,10 @@
 	status = "okay";
 
 	/* Enabled by lk2nd depending on the detected panel */
-	edt_ft5306: touchscreen@3e {
+	edt_ft5306: touchscreen@38 {
 		compatible = "edt,edt-ft5306";
-		reg = <0x3e>;
+		reg = <0x38>;
+		edt,alternate-i2c-addr = <0x3e>;
 
 		interrupts-extended = <&tlmm 65 IRQ_TYPE_LEVEL_LOW>;
 		reset-gpios = <&tlmm 64 GPIO_ACTIVE_LOW>;
