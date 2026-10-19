@@ -27,6 +27,9 @@ properties:
   interrupts:
     maxItems: 1
 
+  reset-gpios:
+    maxItems: 1
+
   vdd-supply:
     description: Power supply regulator for the chip
 
