@@ -4,6 +4,7 @@
  * Copyright (c) 2011 Unixphere
  */
 
+#include <linux/gpio/consumer.h>
 #include <linux/i2c.h>
 #include <linux/rmi.h>
 #include <linux/of.h>
@@ -27,6 +28,8 @@
  *
  * @supplies: Array of voltage regulators
  * @startup_delay: Milliseconds to pause after powering up the regulators
+ * @reset_gpio: Optional active low reset line of the sensor
+ * @reset_delay: Milliseconds to pause after releasing the reset line
  */
 struct rmi_i2c_xport {
 	struct rmi_transport_dev xport;
@@ -40,6 +43,9 @@ struct rmi_i2c_xport {
 
 	struct regulator_bulk_data supplies[2];
 	u32 startup_delay;
+
+	struct gpio_desc *reset_gpio;
+	u32 reset_delay;
 };
 
 #define RMI_PAGE_SELECT_REGISTER 0xff
@@ -183,19 +189,44 @@ static const struct of_device_id rmi_i2c_of_match[] = {
 MODULE_DEVICE_TABLE(of, rmi_i2c_of_match);
 #endif
 
-static void rmi_i2c_regulator_bulk_disable(void *data)
-{
-	struct rmi_i2c_xport *rmi_i2c = data;
-
-	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
-			       rmi_i2c->supplies);
-}
-
 static void rmi_i2c_unregister_transport(void *data)
 {
 	struct rmi_i2c_xport *rmi_i2c = data;
 
 	rmi_unregister_transport_device(&rmi_i2c->xport);
+}
+
+static int rmi_i2c_power_on(struct rmi_i2c_xport *rmi_i2c)
+{
+	int error;
+
+	error = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
+				      rmi_i2c->supplies);
+	if (error < 0)
+		return error;
+
+	msleep(rmi_i2c->startup_delay);
+
+	if (rmi_i2c->reset_gpio) {
+		gpiod_set_value_cansleep(rmi_i2c->reset_gpio, 0);
+		msleep(rmi_i2c->reset_delay);
+	}
+
+	return 0;
+}
+
+static void rmi_i2c_power_off(struct rmi_i2c_xport *rmi_i2c)
+{
+	if (rmi_i2c->reset_gpio)
+		gpiod_set_value_cansleep(rmi_i2c->reset_gpio, 1);
+
+	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
+			       rmi_i2c->supplies);
+}
+
+static void rmi_i2c_devm_power_off(void *data)
+{
+	rmi_i2c_power_off(data);
 }
 
 static int rmi_i2c_probe(struct i2c_client *client)
@@ -235,21 +266,26 @@ static int rmi_i2c_probe(struct i2c_client *client)
 	if (error < 0)
 		return error;
 
-	error = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-				       rmi_i2c->supplies);
+	of_property_read_u32(client->dev.of_node, "syna,startup-delay-ms",
+			     &rmi_i2c->startup_delay);
+	of_property_read_u32(client->dev.of_node, "syna,reset-delay-ms",
+			     &rmi_i2c->reset_delay);
+
+	/* Keep the sensor in reset until it is powered up */
+	rmi_i2c->reset_gpio = devm_gpiod_get_optional(&client->dev, "reset",
+						      GPIOD_OUT_HIGH);
+	if (IS_ERR(rmi_i2c->reset_gpio))
+		return dev_err_probe(&client->dev, PTR_ERR(rmi_i2c->reset_gpio),
+				     "Failed to get reset GPIO\n");
+
+	error = rmi_i2c_power_on(rmi_i2c);
 	if (error < 0)
 		return error;
 
 	error = devm_add_action_or_reset(&client->dev,
-					  rmi_i2c_regulator_bulk_disable,
-					  rmi_i2c);
+					  rmi_i2c_devm_power_off, rmi_i2c);
 	if (error)
 		return error;
-
-	of_property_read_u32(client->dev.of_node, "syna,startup-delay-ms",
-			     &rmi_i2c->startup_delay);
-
-	msleep(rmi_i2c->startup_delay);
 
 	rmi_i2c->client = client;
 	mutex_init(&rmi_i2c->page_mutex);
@@ -297,8 +333,7 @@ static int rmi_i2c_suspend(struct device *dev)
 	if (ret)
 		dev_warn(dev, "Failed to resume device: %d\n", ret);
 
-	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
-			       rmi_i2c->supplies);
+	rmi_i2c_power_off(rmi_i2c);
 
 	return ret;
 }
@@ -309,12 +344,9 @@ static int rmi_i2c_resume(struct device *dev)
 	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
 	int ret;
 
-	ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-				    rmi_i2c->supplies);
+	ret = rmi_i2c_power_on(rmi_i2c);
 	if (ret)
 		return ret;
-
-	msleep(rmi_i2c->startup_delay);
 
 	ret = rmi_driver_resume(rmi_i2c->xport.rmi_dev, true);
 	if (ret)
@@ -333,8 +365,7 @@ static int rmi_i2c_runtime_suspend(struct device *dev)
 	if (ret)
 		dev_warn(dev, "Failed to resume device: %d\n", ret);
 
-	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
-			       rmi_i2c->supplies);
+	rmi_i2c_power_off(rmi_i2c);
 
 	return 0;
 }
@@ -345,12 +376,9 @@ static int rmi_i2c_runtime_resume(struct device *dev)
 	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
 	int ret;
 
-	ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-				    rmi_i2c->supplies);
+	ret = rmi_i2c_power_on(rmi_i2c);
 	if (ret)
 		return ret;
-
-	msleep(rmi_i2c->startup_delay);
 
 	ret = rmi_driver_resume(rmi_i2c->xport.rmi_dev, false);
 	if (ret)
