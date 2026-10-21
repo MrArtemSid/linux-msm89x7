@@ -8,6 +8,7 @@
 #include <linux/gpio/consumer.h>
 #include <linux/mod_devicetable.h>
 #include <linux/module.h>
+#include <linux/mutex.h>
 #include <linux/regulator/consumer.h>
 
 #include <video/mipi_display.h>
@@ -23,12 +24,14 @@ struct sc_ili9881c {
 	struct regulator_bulk_data *supplies;
 	struct gpio_desc *reset_gpio;
 	struct gpio_desc *backlight_gpio;
+	struct mutex lock;
+	bool prepared;
 };
 
 static const struct regulator_bulk_data sc_ili9881c_supplies[] = {
 	{ .supply = "vddio" },
-	{ .supply = "avee" },
 	{ .supply = "avdd" },
+	{ .supply = "avee" },
 };
 
 static inline struct sc_ili9881c *to_sc_ili9881c(struct drm_panel *panel)
@@ -86,29 +89,72 @@ static int sc_ili9881c_off(struct sc_ili9881c *ctx)
 	return dsi_ctx.accum_err;
 }
 
+/* ocp2131 bias: enable avdd (enp) first, then avee (enn); reverse on power off */
+static int sc_ili9881c_power_on(struct sc_ili9881c *ctx)
+{
+	struct device *dev = &ctx->dsi->dev;
+	int ret;
+
+	ret = regulator_enable(ctx->supplies[0].consumer);
+	if (ret < 0)
+		goto err;
+
+	ret = regulator_enable(ctx->supplies[1].consumer);
+	if (ret < 0)
+		goto err_vddio;
+
+	usleep_range(2000, 3000);
+
+	ret = regulator_enable(ctx->supplies[2].consumer);
+	if (ret < 0)
+		goto err_avdd;
+
+	return 0;
+
+err_avdd:
+	regulator_disable(ctx->supplies[1].consumer);
+err_vddio:
+	regulator_disable(ctx->supplies[0].consumer);
+err:
+	dev_err(dev, "Failed to enable regulators: %d\n", ret);
+	return ret;
+}
+
+static void sc_ili9881c_power_off(struct sc_ili9881c *ctx)
+{
+	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
+	msleep(15);
+	regulator_disable(ctx->supplies[2].consumer);
+	usleep_range(2000, 3000);
+	regulator_disable(ctx->supplies[1].consumer);
+	regulator_disable(ctx->supplies[0].consumer);
+}
+
 static int sc_ili9881c_prepare(struct drm_panel *panel)
 {
 	struct sc_ili9881c *ctx = to_sc_ili9881c(panel);
 	struct device *dev = &ctx->dsi->dev;
 	int ret;
 
-	ret = regulator_bulk_enable(ARRAY_SIZE(sc_ili9881c_supplies), ctx->supplies);
-	if (ret < 0) {
-		dev_err(dev, "Failed to enable regulators: %d\n", ret);
-		return ret;
-	}
+	mutex_lock(&ctx->lock);
+
+	ret = sc_ili9881c_power_on(ctx);
+	if (ret < 0)
+		goto out;
 
 	sc_ili9881c_reset(ctx);
 
 	ret = sc_ili9881c_on(ctx);
 	if (ret < 0) {
 		dev_err(dev, "Failed to initialize panel: %d\n", ret);
-		gpiod_set_value_cansleep(ctx->reset_gpio, 1);
-		regulator_bulk_disable(ARRAY_SIZE(sc_ili9881c_supplies), ctx->supplies);
-		return ret;
+		sc_ili9881c_power_off(ctx);
+		goto out;
 	}
 
-	return 0;
+	ctx->prepared = true;
+out:
+	mutex_unlock(&ctx->lock);
+	return ret;
 }
 
 static int sc_ili9881c_unprepare(struct drm_panel *panel)
@@ -117,13 +163,17 @@ static int sc_ili9881c_unprepare(struct drm_panel *panel)
 	struct device *dev = &ctx->dsi->dev;
 	int ret;
 
+	mutex_lock(&ctx->lock);
+
+	ctx->prepared = false;
+
 	ret = sc_ili9881c_off(ctx);
 	if (ret < 0)
 		dev_err(dev, "Failed to un-initialize panel: %d\n", ret);
 
-	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
-	regulator_bulk_disable(ARRAY_SIZE(sc_ili9881c_supplies), ctx->supplies);
+	sc_ili9881c_power_off(ctx);
 
+	mutex_unlock(&ctx->lock);
 	return 0;
 }
 
@@ -173,19 +223,22 @@ static int sc_ili9881c_bl_update_status(struct backlight_device *bl)
 	struct mipi_dsi_device *dsi = bl_get_data(bl);
 	struct sc_ili9881c *ctx = mipi_dsi_get_drvdata(dsi);
 	u16 brightness = backlight_get_brightness(bl);
-	int ret;
+	int ret = 0;
 
-	gpiod_set_value_cansleep(ctx->backlight_gpio, !!brightness);
+	/*
+	 * The panel is in sleep-in with the DSI host off while unprepared;
+	 * prepared state is re-applied through backlight_enable().
+	 * Brightness is sent in LP mode, as downstream does.
+	 */
+	mutex_lock(&ctx->lock);
+	if (ctx->prepared) {
+		gpiod_set_value_cansleep(ctx->backlight_gpio, !!brightness);
 
-	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
+		ret = sc_ili9881c_set_display_brightness(dsi, brightness);
+	}
+	mutex_unlock(&ctx->lock);
 
-	ret = sc_ili9881c_set_display_brightness(dsi, brightness);
-	if (ret < 0)
-		return ret;
-
-	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
-
-	return 0;
+	return ret;
 }
 
 static const struct backlight_ops sc_ili9881c_bl_ops = {
@@ -235,6 +288,10 @@ static int sc_ili9881c_probe(struct mipi_dsi_device *dsi)
 		return dev_err_probe(dev, PTR_ERR(ctx->backlight_gpio),
 				     "Failed to get backlight-gpios\n");
 
+	ret = devm_mutex_init(dev, &ctx->lock);
+	if (ret < 0)
+		return ret;
+
 	ctx->dsi = dsi;
 	mipi_dsi_set_drvdata(dsi, ctx);
 
@@ -242,7 +299,7 @@ static int sc_ili9881c_probe(struct mipi_dsi_device *dsi)
 	dsi->format = MIPI_DSI_FMT_RGB888;
 	dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST |
 			  MIPI_DSI_MODE_VIDEO_HSE |
-			  MIPI_DSI_CLOCK_NON_CONTINUOUS;
+			  MIPI_DSI_CLOCK_NON_CONTINUOUS | MIPI_DSI_MODE_LPM;
 
 	ctx->panel.prepare_prev_first = true;
 

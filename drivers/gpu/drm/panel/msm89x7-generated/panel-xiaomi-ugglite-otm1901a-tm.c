@@ -8,6 +8,7 @@
 #include <linux/gpio/consumer.h>
 #include <linux/mod_devicetable.h>
 #include <linux/module.h>
+#include <linux/mutex.h>
 #include <linux/regulator/consumer.h>
 
 #include <video/mipi_display.h>
@@ -23,12 +24,14 @@ struct tm_otm1901a {
 	struct regulator_bulk_data *supplies;
 	struct gpio_desc *reset_gpio;
 	struct gpio_desc *backlight_gpio;
+	struct mutex lock;
+	bool prepared;
 };
 
 static const struct regulator_bulk_data tm_otm1901a_supplies[] = {
 	{ .supply = "vddio" },
-	{ .supply = "avee" },
 	{ .supply = "avdd" },
+	{ .supply = "avee" },
 };
 
 static inline struct tm_otm1901a *to_tm_otm1901a(struct drm_panel *panel)
@@ -98,29 +101,72 @@ static int tm_otm1901a_off(struct tm_otm1901a *ctx)
 	return dsi_ctx.accum_err;
 }
 
+/* ocp2131 bias: enable avdd (enp) first, then avee (enn); reverse on power off */
+static int tm_otm1901a_power_on(struct tm_otm1901a *ctx)
+{
+	struct device *dev = &ctx->dsi->dev;
+	int ret;
+
+	ret = regulator_enable(ctx->supplies[0].consumer);
+	if (ret < 0)
+		goto err;
+
+	ret = regulator_enable(ctx->supplies[1].consumer);
+	if (ret < 0)
+		goto err_vddio;
+
+	usleep_range(2000, 3000);
+
+	ret = regulator_enable(ctx->supplies[2].consumer);
+	if (ret < 0)
+		goto err_avdd;
+
+	return 0;
+
+err_avdd:
+	regulator_disable(ctx->supplies[1].consumer);
+err_vddio:
+	regulator_disable(ctx->supplies[0].consumer);
+err:
+	dev_err(dev, "Failed to enable regulators: %d\n", ret);
+	return ret;
+}
+
+static void tm_otm1901a_power_off(struct tm_otm1901a *ctx)
+{
+	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
+	msleep(15);
+	regulator_disable(ctx->supplies[2].consumer);
+	usleep_range(2000, 3000);
+	regulator_disable(ctx->supplies[1].consumer);
+	regulator_disable(ctx->supplies[0].consumer);
+}
+
 static int tm_otm1901a_prepare(struct drm_panel *panel)
 {
 	struct tm_otm1901a *ctx = to_tm_otm1901a(panel);
 	struct device *dev = &ctx->dsi->dev;
 	int ret;
 
-	ret = regulator_bulk_enable(ARRAY_SIZE(tm_otm1901a_supplies), ctx->supplies);
-	if (ret < 0) {
-		dev_err(dev, "Failed to enable regulators: %d\n", ret);
-		return ret;
-	}
+	mutex_lock(&ctx->lock);
+
+	ret = tm_otm1901a_power_on(ctx);
+	if (ret < 0)
+		goto out;
 
 	tm_otm1901a_reset(ctx);
 
 	ret = tm_otm1901a_on(ctx);
 	if (ret < 0) {
 		dev_err(dev, "Failed to initialize panel: %d\n", ret);
-		gpiod_set_value_cansleep(ctx->reset_gpio, 1);
-		regulator_bulk_disable(ARRAY_SIZE(tm_otm1901a_supplies), ctx->supplies);
-		return ret;
+		tm_otm1901a_power_off(ctx);
+		goto out;
 	}
 
-	return 0;
+	ctx->prepared = true;
+out:
+	mutex_unlock(&ctx->lock);
+	return ret;
 }
 
 static int tm_otm1901a_unprepare(struct drm_panel *panel)
@@ -129,13 +175,17 @@ static int tm_otm1901a_unprepare(struct drm_panel *panel)
 	struct device *dev = &ctx->dsi->dev;
 	int ret;
 
+	mutex_lock(&ctx->lock);
+
+	ctx->prepared = false;
+
 	ret = tm_otm1901a_off(ctx);
 	if (ret < 0)
 		dev_err(dev, "Failed to un-initialize panel: %d\n", ret);
 
-	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
-	regulator_bulk_disable(ARRAY_SIZE(tm_otm1901a_supplies), ctx->supplies);
+	tm_otm1901a_power_off(ctx);
 
+	mutex_unlock(&ctx->lock);
 	return 0;
 }
 
@@ -170,20 +220,24 @@ static int tm_otm1901a_bl_update_status(struct backlight_device *bl)
 {
 	struct mipi_dsi_device *dsi = bl_get_data(bl);
 	struct tm_otm1901a *ctx = mipi_dsi_get_drvdata(dsi);
-	u16 brightness = backlight_get_brightness(bl);
-	int ret;
+	u8 brightness = backlight_get_brightness(bl);
+	int ret = 0;
 
-	gpiod_set_value_cansleep(ctx->backlight_gpio, !!brightness);
+	/*
+	 * The panel is in sleep-in with the DSI host off while unprepared;
+	 * prepared state is re-applied through backlight_enable().
+	 * Brightness is sent in LP mode, as downstream does.
+	 */
+	mutex_lock(&ctx->lock);
+	if (ctx->prepared) {
+		gpiod_set_value_cansleep(ctx->backlight_gpio, !!brightness);
 
-	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
+		ret = mipi_dsi_dcs_write(dsi, MIPI_DCS_SET_DISPLAY_BRIGHTNESS,
+					 &brightness, sizeof(brightness));
+	}
+	mutex_unlock(&ctx->lock);
 
-	ret = mipi_dsi_dcs_set_display_brightness(dsi, brightness);
-	if (ret < 0)
-		return ret;
-
-	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
-
-	return 0;
+	return ret;
 }
 
 static const struct backlight_ops tm_otm1901a_bl_ops = {
@@ -232,6 +286,10 @@ static int tm_otm1901a_probe(struct mipi_dsi_device *dsi)
 	if (IS_ERR(ctx->backlight_gpio))
 		return dev_err_probe(dev, PTR_ERR(ctx->backlight_gpio),
 				     "Failed to get backlight-gpios\n");
+
+	ret = devm_mutex_init(dev, &ctx->lock);
+	if (ret < 0)
+		return ret;
 
 	ctx->dsi = dsi;
 	mipi_dsi_set_drvdata(dsi, ctx);
