@@ -234,6 +234,8 @@ static int tm_otm1901a_bl_update_status(struct backlight_device *bl)
 
 		ret = mipi_dsi_dcs_write(dsi, MIPI_DCS_SET_DISPLAY_BRIGHTNESS,
 					 &brightness, sizeof(brightness));
+		if (ret > 0)
+			ret = 0;
 	}
 	mutex_unlock(&ctx->lock);
 
