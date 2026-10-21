@@ -192,8 +192,23 @@
 	status = "okay";
 };
 
+&ibb {
+	/* Panel bias; downstream qcom,qpnp-ibb-init-lcd-voltage = 5.5 V, bootloader-enabled */
+	regulator-min-microvolt = <5500000>;
+	regulator-max-microvolt = <5500000>;
+	regulator-always-on;
+	regulator-boot-on;
+};
+
 &ipa {
 	status = "okay";
+};
+
+&lab {
+	regulator-min-microvolt = <5500000>;
+	regulator-max-microvolt = <5500000>;
+	regulator-always-on;
+	regulator-boot-on;
 };
 
 &lpass_codec{
