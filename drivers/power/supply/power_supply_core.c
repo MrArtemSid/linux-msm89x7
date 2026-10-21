@@ -204,10 +204,24 @@ static int __power_supply_populate_supplied_from(struct power_supply *epsy,
 			break;
 
 		if (np == epsy->dev.fwnode) {
+			char **names;
+
 			dev_dbg(&psy->dev, "%s: Found supply : %s\n",
 				psy->desc->name, epsy->desc->name);
-			psy->supplied_from[i-1] = (char *)epsy->desc->name;
-			psy->num_supplies++;
+			/*
+			 * One fwnode may back several power supplies (e.g.
+			 * smb347 mains + usb), so grow the list per match.
+			 */
+			names = devm_krealloc_array(&psy->dev, psy->supplied_from,
+						    psy->num_supplies + 1,
+						    sizeof(*names), GFP_KERNEL);
+			if (!names) {
+				fwnode_handle_put(np);
+				return -ENOMEM;
+			}
+			psy->supplied_from = names;
+			psy->supplied_from[psy->num_supplies++] =
+				(char *)epsy->desc->name;
 			fwnode_handle_put(np);
 			break;
 		}
@@ -292,18 +306,7 @@ static int power_supply_check_supplies(struct power_supply *psy)
 	if (cnt == 1)
 		return 0;
 
-	/* All supplies found, allocate char ** array for filling */
-	psy->supplied_from = devm_kzalloc(&psy->dev, sizeof(*psy->supplied_from),
-					  GFP_KERNEL);
-	if (!psy->supplied_from)
-		return -ENOMEM;
-
-	*psy->supplied_from = devm_kcalloc(&psy->dev,
-					   cnt - 1, sizeof(**psy->supplied_from),
-					   GFP_KERNEL);
-	if (!*psy->supplied_from)
-		return -ENOMEM;
-
+	/* All supplies found, the char ** array is grown while populating */
 	return power_supply_populate_supplied_from(psy);
 }
 #else
