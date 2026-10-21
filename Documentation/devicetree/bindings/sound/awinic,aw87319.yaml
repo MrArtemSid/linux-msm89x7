@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/awinic,aw87319.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Awinic AW87319 Audio Amplifier
+
+description:
+  The Awinic AW87319 is a mono audio amplifier controlled over I2C, with a
+  reset/enable GPIO.
+
+allOf:
+  - $ref: dai-common.yaml#
+
+properties:
+  compatible:
+    const: awinic,aw87319
+
+  reg:
+    maxItems: 1
+
+  reset-gpios:
+    maxItems: 1
+
+  sound-name-prefix: true
+
+required:
+  - compatible
+  - reg
+  - reset-gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    #include <dt-bindings/gpio/gpio.h>
+    i2c {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        audio-amplifier@58 {
+            compatible = "awinic,aw87319";
+            reg = <0x58>;
+            reset-gpios = <&tlmm 124 GPIO_ACTIVE_HIGH>;
+            sound-name-prefix = "Speaker Amp";
+        };
+    };

@@ -54,6 +54,7 @@ config SND_SOC_ALL_CODECS
 	imply SND_SOC_ALC5632
 	imply SND_SOC_AUDIO_IIO_AUX
 	imply SND_SOC_AW8738
+	imply SND_SOC_AW87319
 	imply SND_SOC_AW87390
 	imply SND_SOC_AW88395
 	imply SND_SOC_AW88081
@@ -657,6 +658,13 @@ config SND_SOC_AW8738
 	  The driver supports simple audio amplifiers similar to
 	  SND_SOC_SIMPLE_AMPLIFIER, but additionally allows setting the
 	  operation mode using the Awinic-specific one-wire pulse control.
+
+config SND_SOC_AW87319
+	tristate "Awinic AW87319 Audio Amplifier"
+	depends on I2C
+	select REGMAP_I2C
+	help
+	  Enable support for the Awinic AW87319 audio amplifier.
 
 config SND_SOC_AW88395_LIB
 	select CRC8
