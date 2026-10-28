@@ -53,21 +53,12 @@
 
 		framebuffer0: framebuffer@90001000 {
 			compatible = "simple-framebuffer";
-			reg = <0x0 0x90001000 0x0 (720 * 1280 * 3)>;
+			reg = <0x0 0x90001000 0x0 0x384000>;
 			width = <720>;
 			height = <1280>;
-			stride = <(720 * 3)>;
-			format = "r8g8b8";
-
-			clocks = <&gcc GCC_MDSS_AHB_CLK>,
-				 <&gcc GCC_MDSS_AXI_CLK>,
-				 <&gcc GCC_MDSS_VSYNC_CLK>,
-				 <&gcc GCC_MDSS_MDP_CLK>,
-				 <&gcc GCC_MDSS_BYTE0_CLK>,
-				 <&gcc GCC_MDSS_PCLK0_CLK>,
-				 <&gcc GCC_MDSS_ESC0_CLK>;
-			power-domains = <&gcc MDSS_GDSC>;
-			status = "disabled";
+			stride = <2880>;
+			format = "x8r8g8b8";
+			status = "okay";
 		};
 	};
 
@@ -81,7 +72,7 @@
 		};
 
 		framebuffer_mem: memory@90001000 {
-			reg = <0x0 0x90001000 0x0 (720 * 1280 * 3)>;
+			reg = <0x0 0x90001000 0x0 0x384000>;
 			no-map;
 		};
 	};
@@ -573,7 +564,7 @@
 };
 
 &usb {
-	dr_mode = "otg";
+	dr_mode = "peripheral";
 	extcon = <&pmi8950_smbcharger>, <&pmi8950_smbcharger>;
 	vbus-supply = <&otg_vbus>;
 	status = "okay";
