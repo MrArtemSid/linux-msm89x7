@@ -520,7 +520,7 @@
 };
 
 &tlmm {
-	gpio-reserved-ranges = <0 4>, <20 4>;
+	gpio-reserved-ranges = <0 4>, <20 4>, <51 8>;
 
 	gpio_keys_default: gpio-keys-default-state {
 		pins = "gpio91";
