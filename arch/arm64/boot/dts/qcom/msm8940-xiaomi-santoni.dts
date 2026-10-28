@@ -336,12 +336,11 @@
 };
 
 &qseecom {
-	reg = <0x0 0x84a00000 0x0 0x1900000>;
-	status = "okay";
+	status = "disabled";
 };
 
 &qseecom_heap {
-	status = "okay";
+	status = "disabled";
 };
 
 &rpm_requests {
