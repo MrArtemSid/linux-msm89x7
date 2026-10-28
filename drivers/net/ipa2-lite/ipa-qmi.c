@@ -1241,7 +1241,11 @@ ipa_client_new_server(struct qmi_handle *qmi, struct qmi_service *svc)
 	ipa_qmi->uc_loaded = true;
 	ipa_modem_set_present(ipa_qmi->dev, true);
 
-	schedule_work(&ipa_qmi->init_driver_work);
+	/* Do not send IPA_QMI_INIT_DRIVER request to modem firmware on MSM8940.
+	 * Modern/stock Hexagon modem firmware on Santoni expects AP not to send this request,
+	 * otherwise modem asserts: "ipa_bam.c:732:IPA Assert: ipa_bam_hw_pipe_get_sw_ofst_reg(pipe_num) == 0 failed"
+	 */
+	// schedule_work(&ipa_qmi->init_driver_work);
 
 	return 0;
 }
