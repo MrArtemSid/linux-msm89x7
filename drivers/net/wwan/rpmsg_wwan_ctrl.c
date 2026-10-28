@@ -37,6 +37,9 @@ static int rpmsg_wwan_ctrl_start(struct wwan_port *port)
 		.dst = RPMSG_ADDR_ANY,
 	};
 
+	if (rpwwan->ept)
+		return 0;
+
 	strscpy(chinfo.name, rpwwan->rpdev->id.name, sizeof(chinfo.name));
 	rpwwan->ept = rpmsg_create_ept(rpwwan->rpdev, rpmsg_wwan_ctrl_callback,
 				       rpwwan, chinfo);
@@ -48,10 +51,10 @@ static int rpmsg_wwan_ctrl_start(struct wwan_port *port)
 
 static void rpmsg_wwan_ctrl_stop(struct wwan_port *port)
 {
-	struct rpmsg_wwan_dev *rpwwan = wwan_port_get_drvdata(port);
-
-	rpmsg_destroy_ept(rpwwan->ept);
-	rpwwan->ept = NULL;
+	/* Do not destroy ept / close SMD channel on port close.
+	 * Closing the SMD channel causes Hexagon modem firmware to close
+	 * its remote side, which unregisters the rpmsg device and deletes /dev/wwan0at*.
+	 */
 }
 
 static int rpmsg_wwan_ctrl_tx(struct wwan_port *port, struct sk_buff *skb)
