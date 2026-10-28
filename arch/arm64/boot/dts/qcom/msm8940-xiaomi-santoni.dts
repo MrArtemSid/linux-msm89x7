@@ -564,6 +564,7 @@
 
 &usb {
 	dr_mode = "peripheral";
+	extcon = <&pmi8950_smbcharger>, <&pmi8950_smbcharger>;
 	vbus-supply = <&otg_vbus>;
 	status = "okay";
 };
