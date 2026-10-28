@@ -59,6 +59,11 @@ static int rpmsg_wwan_ctrl_tx(struct wwan_port *port, struct sk_buff *skb)
 	struct rpmsg_wwan_dev *rpwwan = wwan_port_get_drvdata(port);
 	int ret;
 
+	if (!skb->len) {
+		consume_skb(skb);
+		return 0;
+	}
+
 	ret = rpmsg_trysend(rpwwan->ept, skb->data, skb->len);
 	if (ret)
 		return ret;
@@ -71,6 +76,11 @@ static int rpmsg_wwan_ctrl_tx_blocking(struct wwan_port *port, struct sk_buff *s
 {
 	struct rpmsg_wwan_dev *rpwwan = wwan_port_get_drvdata(port);
 	int ret;
+
+	if (!skb->len) {
+		consume_skb(skb);
+		return 0;
+	}
 
 	ret = rpmsg_send(rpwwan->ept, skb->data, skb->len);
 	if (ret)
