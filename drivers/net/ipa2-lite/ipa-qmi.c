@@ -1234,6 +1234,13 @@ ipa_client_new_server(struct qmi_handle *qmi, struct qmi_service *svc)
 	ipa_qmi->modem_sq.sq_node = svc->node;
 	ipa_qmi->modem_sq.sq_port = svc->port;
 
+	ipa_qmi->indication_requested = true;
+	ipa_qmi->indication_sent = true;
+	ipa_qmi->initial_boot = false;
+	ipa_qmi->modem_ready = true;
+	ipa_qmi->uc_loaded = true;
+	ipa_modem_set_present(ipa_qmi->dev, true);
+
 	schedule_work(&ipa_qmi->init_driver_work);
 
 	return 0;
